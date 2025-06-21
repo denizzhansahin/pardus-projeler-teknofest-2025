@@ -1,0 +1,64 @@
+/* src/index.css */
+
+/* Bu 3 satır Tailwind'in çalışması için zorunludur ve @layer hatasını çözer */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary-DEFAULT: 107 33 168; /* Purple 700 */
+    --color-primary-light: 129 40 202; /* Purple 600 */
+    --color-primary-dark: 87 26 138;  /* Purple 800 */
+
+    --color-secondary-DEFAULT: 20 184 166; /* Teal 500 */
+    --color-secondary-light: 45 208 191; /* Teal 400 */
+    --color-secondary-dark: 13 148 136; /* Teal 600 */
+    
+    --color-accent-DEFAULT: 249 115 22; /* Orange 500 */
+    --color-accent-hover: 234 88 12; /* Orange 600 */
+
+    --color-background: 243 244 246; /* Gray 100 */
+    --color-surface: 255 255 255; /* White */
+    
+    --color-text-primary: 17 24 39; /* Gray 900 */
+    --color-text-secondary: 55 65 81; /* Gray 700 */
+  }
+  .dark {
+    --color-primary-DEFAULT: 129 40 202; /* Purple 600 */
+    --color-primary-light: 147 51 234; /* Purple 500 */
+    --color-primary-dark: 107 33 168; /* Purple 700 */
+
+    --color-secondary-DEFAULT: 45 208 191; /* Teal 400 */
+    --color-secondary-light: 80 220 205; /* Teal 300 */
+    --color-secondary-dark: 20 184 166; /* Teal 500 */
+    
+    --color-accent-DEFAULT: 251 146 60; /* Orange 400 */
+    --color-accent-hover: 249 115 22; /* Orange 500 */
+
+    --color-background: 17 24 39; /* Gray 900 */
+    --color-surface: 31 41 55; /* Gray 800 */
+
+    --color-text-primary: 243 244 246; /* Gray 100 */
+    --color-text-secondary: 209 213 219; /* Gray 300 */
+  }
+  body {
+    @apply bg-background text-textPrimary;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer components {
+  .chat-bubble-user {
+    @apply bg-gradient-to-br from-primary-light to-primary-dark text-white;
+  }
+  .chat-bubble-ai {
+    @apply bg-gradient-to-br from-secondary-light to-secondary-dark text-white;
+  }
+  .shadow-top {
+      box-shadow: 0 -4px 6px -1px rgb(0 0 0 / 0.1), 0 -2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+  .dark .shadow-top {
+        box-shadow: 0 -4px 6px -1px rgb(255 255 255 / 0.05), 0 -2px 4px -2px rgb(255 255 255 / 0.05);
+  }
+}

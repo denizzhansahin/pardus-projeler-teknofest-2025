@@ -1,0 +1,8 @@
+{
+  "name": "Multimodal AI Chatbot",
+  "description": "A modern, dynamic, and visually appealing AI chatbot application that supports text, image, video, and voice interactions, powered by Gemini API.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "prompt": ""
+}
