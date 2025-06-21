@@ -103,8 +103,6 @@ multimodal-ai-chatbot-gemini/dist/
 multimodal-ai-chatbot-gemini/release/
 multimodal-ai-chatbot-gemini/out/
 multimodal-ai-chatbot-gemini/coverage/
-multimodal-ai-chatbot-gemini/.env
-multimodal-ai-chatbot-gemini/.env.*
 multimodal-ai-chatbot-gemini/.DS_Store
 multimodal-ai-chatbot-gemini/.vscode/
 multimodal-ai-chatbot-gemini/.idea/
