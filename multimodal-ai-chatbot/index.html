@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pardus AI with Gemini - Beta Sürümü</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        // Safelist for dynamically added classes, though less critical with CDN
+        safelist: [
+        //   { pattern: /bg-(slate|sky|emerald|rose|indigo)-(500|600)/ }, 
+        //   { pattern: /ring-(primary|accent)/ },
+        //   'text-red-500', 'hover:bg-red-100', 'dark:hover:bg-red-700/50', // For delete button
+        //   'bg-primary/20', 'dark:bg-primary/30', 'text-primary', 'dark:text-primary-light', // For active chat item
+           'animate-pulse-fast', // For recording mic icon
+           'opacity-50', 'cursor-not-allowed', // For disabled states
+        ],
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                DEFAULT: 'rgb(var(--color-primary-DEFAULT) / <alpha-value>)',
+                light: 'rgb(var(--color-primary-light) / <alpha-value>)',
+                dark: 'rgb(var(--color-primary-dark) / <alpha-value>)',
+              },
+              secondary: {
+                DEFAULT: 'rgb(var(--color-secondary-DEFAULT) / <alpha-value>)',
+                light: 'rgb(var(--color-secondary-light) / <alpha-value>)',
+                dark: 'rgb(var(--color-secondary-dark) / <alpha-value>)',
+              },
+              accent: {
+                DEFAULT: 'rgb(var(--color-accent-DEFAULT) / <alpha-value>)',
+                hover: 'rgb(var(--color-accent-hover) / <alpha-value>)',
+              },
+              background: 'rgb(var(--color-background) / <alpha-value>)', // Base for MessageList if no custom bg
+              surface: 'rgb(var(--color-surface) / <alpha-value>)', // ChatInput, Modal bg
+              textPrimary: 'rgb(var(--color-text-primary) / <alpha-value>)',
+              textSecondary: 'rgb(var(--color-text-secondary) / <alpha-value>)',
+            },
+            animation: {
+              'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'fade-in': 'fadeIn 0.3s ease-out',
+              'slide-up': 'slideUp 0.4s ease-out',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+              slideUp: {
+                '0%': { transform: 'translateY(20px)', opacity: '0'},
+                '100%': { transform: 'translateY(0px)', opacity: '1'},
+              }
+            },
+            transitionProperty: {
+              'background': 'background-image, background-color',
+            }
+          }
+        }
+      }
+    </script>
+    <style type="text/tailwindcss">
+      @layer base {
+        :root {
+          --color-primary-DEFAULT: 107 33 168; /* Purple 700 */
+          --color-primary-light: 129 40 202; /* Purple 600 */
+          --color-primary-dark: 87 26 138;  /* Purple 800 */
+
+          --color-secondary-DEFAULT: 20 184 166; /* Teal 500 */
+          --color-secondary-light: 45 208 191; /* Teal 400 */
+          --color-secondary-dark: 13 148 136; /* Teal 600 */
+          
+          --color-accent-DEFAULT: 249 115 22; /* Orange 500 */
+          --color-accent-hover: 234 88 12; /* Orange 600 */
+
+          --color-background: 243 244 246; /* Gray 100 */
+          --color-surface: 255 255 255; /* White */
+          
+          --color-text-primary: 17 24 39; /* Gray 900 */
+          --color-text-secondary: 55 65 81; /* Gray 700 */
+        }
+        .dark {
+          --color-primary-DEFAULT: 129 40 202; /* Purple 600 */
+          --color-primary-light: 147 51 234; /* Purple 500 */
+          --color-primary-dark: 107 33 168; /* Purple 700 */
+
+          --color-secondary-DEFAULT: 45 208 191; /* Teal 400 */
+          --color-secondary-light: 80 220 205; /* Teal 300 */
+          --color-secondary-dark: 20 184 166; /* Teal 500 */
+          
+          --color-accent-DEFAULT: 251 146 60; /* Orange 400 */
+          --color-accent-hover: 249 115 22; /* Orange 500 */
+
+          --color-background: 17 24 39; /* Gray 900 */
+          --color-surface: 31 41 55; /* Gray 800 */
+
+          --color-text-primary: 243 244 246; /* Gray 100 */
+          --color-text-secondary: 209 213 219; /* Gray 300 */
+        }
+        body {
+          @apply bg-background text-textPrimary;
+          font-family: 'Inter', sans-serif;
+        }
+      }
+      @layer components {
+        .chat-bubble-user {
+          @apply bg-gradient-to-br from-primary-light to-primary-dark text-white;
+        }
+        .chat-bubble-ai {
+          @apply bg-gradient-to-br from-secondary-light to-secondary-dark text-white;
+        }
+        .shadow-top {
+            box-shadow: 0 -4px 6px -1px rgb(0 0 0 / 0.1), 0 -2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .dark .shadow-top {
+             box-shadow: 0 -4px 6px -1px rgb(255 255 255 / 0.05), 0 -2px 4px -2px rgb(255 255 255 / 0.05);
+        }
+      }
+    </style>
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.4.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
