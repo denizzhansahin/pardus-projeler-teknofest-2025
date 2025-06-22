@@ -267,7 +267,7 @@ const App: React.FC = () => {
           <div className="flex items-center space-x-3">
             <SparklesIcon className="w-10 h-10 text-sky-400" />
             <h1 className="text-3xl font-bold tracking-tight gradient-text bg-gradient-to-r from-sky-400 via-rose-400 to-lime-400">
-              AI Not Defteri
+             Pardus AI Not Defteri
             </h1>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-3">
