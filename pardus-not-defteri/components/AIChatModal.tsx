@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AIChatMessage, Note } from '../types';
@@ -57,7 +56,7 @@ const AIChatModal: React.FC<AIChatModalProps> = ({ isOpen, onClose, notes }) => 
                 const newAiMessageChunk: AIChatMessage = {
                     id: `ai-chunk-${Date.now()}`, // Or use a more stable ID if possible from aiChunk if it had one
                     sender: 'ai',
-                    text: aiChunk.text,
+                    text: aiChunk.text ?? '',
                     timestamp: Date.now(),
                 };
                 return [...prev, newAiMessageChunk];
@@ -75,8 +74,8 @@ const AIChatModal: React.FC<AIChatModalProps> = ({ isOpen, onClose, notes }) => 
         });
     } finally {
         setIsLoading(false);
-        // Optional: Change ID of the fully streamed message from aiTypingId to a final ID
-        setMessages(prev => prev.map(msg => msg.id === aiTypingId ? {...msg, id: `ai-msg-${Date.now()}`} : msg));
+        // KALDIRILDI: setMessages(prev => prev.map(msg => msg.id === aiTypingId ? {...msg, id: `ai-msg-${Date.now()}`} : msg));
+        // Artık AI mesajının ID'si değiştirilmiyor, böylece sonsuz güncelleme tetiklenmez.
     }
   };
 

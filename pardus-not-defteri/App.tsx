@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { I18nextProvider, useTranslation } from 'react-i18next';
@@ -28,24 +27,19 @@ const App: React.FC = () => {
 
 const MainApp: React.FC = () => {
   const { t } = useTranslation();
-  const { 
-    notes, notebooks, activeNotebookId, searchTerm, 
-    setActiveNotebookId, setSearchTerm, updateNote, _hasHydrated
-    // setHasHydrated was only used in the removed useEffect, so it can be omitted from destructuring
-    // but keeping it for minimal change as per instructions if it wasn't the direct cause of error.
-    // For this fix, setHasHydrated from the store selector is no longer directly used in this component.
-  } = useNoteStore(useCallback(state => ({
-    notes: state.notes,
-    notebooks: state.notebooks,
-    activeNotebookId: state.activeNotebookId,
-    searchTerm: state.searchTerm,
-    setActiveNotebookId: state.setActiveNotebookId,
-    setSearchTerm: state.setSearchTerm,
-    updateNote: state.updateNote,
-    _hasHydrated: state._hasHydrated,
-    // setHasHydrated: state.setHasHydrated, // No longer needed by App.tsx directly
-  }),[]));
-
+  // Zustand selector fonksiyonunu toplu obje olarak DEĞİL, her state/action için ayrı ayrı kullan!
+  const notes = useNoteStore(state => state.notes);
+  const notebooks = useNoteStore(state => state.notebooks);
+  const activeNotebookId = useNoteStore(state => state.activeNotebookId);
+  const searchTerm = useNoteStore(state => state.searchTerm);
+  const setActiveNotebookId = useNoteStore(state => state.setActiveNotebookId);
+  const setSearchTerm = useNoteStore(state => state.setSearchTerm);
+  const updateNote = useNoteStore(state => state.updateNote);
+  const _hasHydrated = useNoteStore(state => state._hasHydrated);
+  // setHasHydrated was only used in the removed useEffect, so it can be omitted from destructuring
+  // but keeping it for minimal change as per instructions if it wasn't the direct cause of error.
+  // For this fix, setHasHydrated from the store selector is no longer directly used in this component.
+  // const setHasHydrated = useNoteStore(state => state.setHasHydrated); // No longer needed by App.tsx directly
 
   const [isNoteEditorOpen, setIsNoteEditorOpen] = useState(false);
   const [editingNote, setEditingNote] = useState<Note | null>(null);

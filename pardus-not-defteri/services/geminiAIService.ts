@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 // IMPORTANT: This service SIMULATES calls to the Gemini API.
 // It uses the prescribed structures and types but returns mock data.
 // The API_KEY is expected to be available as process.env.API_KEY.
@@ -8,25 +9,18 @@ import { Note, AIContentRequest, AIChatMessage } from '../types';
 import { GEMINI_TEXT_MODEL } from '../constants';
 
 // Mock process.env.API_KEY for environments where it's not set by a build tool
-const API_KEY = (typeof process !== 'undefined' && process.env && process.env.API_KEY)
-                ? process.env.API_KEY
-                // Use a valid-looking placeholder for the mock, but it won't be used for actual calls.
-                : "MOCK_API_KEY_DO_NOT_USE_FOR_REAL_REQUESTS"; 
+const API_KEY = typeof import.meta.env !== 'undefined' && import.meta.env.VITE_API_KEY
+  ? import.meta.env.VITE_API_KEY
+  : (typeof process !== 'undefined' && process.env && process.env.API_KEY)
+    ? process.env.API_KEY
+    : "MOCK_API_KEY_DO_NOT_USE_FOR_REAL_REQUESTS";
 
 if (API_KEY === "MOCK_API_KEY_DO_NOT_USE_FOR_REAL_REQUESTS") {
   console.warn(
     "GeminiAIService: Using a placeholder API key for simulation. " +
-    "Ensure process.env.API_KEY is set in your environment for actual API calls."
+    "Ensure import.meta.env.VITE_API_KEY or process.env.API_KEY is set in your environment for actual API calls."
   );
 }
-
-// Local interface for mock function parameters
-interface MockGenerateContentParameters {
-  model: string;
-  contents: string | (string | Part)[] | Content; // This is the key type
-  config?: any; // Keeping config flexible for the mock
-}
-
 
 let ai: GoogleGenAI;
 
@@ -44,29 +38,29 @@ try {
   ai = {
     // @ts-ignore
     models: {
-      generateContent: async (params: MockGenerateContentParameters): Promise<GenerateContentResponse> => {
+      generateContent: async (params: any): Promise<GenerateContentResponse> => {
         console.log("SIMULATED Gemini API Call: generateContent with params:", params);
         await new Promise(resolve => setTimeout(resolve, 1000)); 
         let textResponse = "This is a simulated AI response. ";
         
-        const { contents } = params; 
+        const { contents } = params;
         let promptForLog = "";
 
         if (typeof contents === 'string') {
           promptForLog = contents;
-        } else if (Array.isArray(contents)) { // contents is (string | Part)[]
+        } else if (Array.isArray(contents)) {
             let combinedText = "";
             for (const item of contents) {
                 if (typeof item === 'string') {
                     combinedText += item + " ";
-                } else if ('text' in item && typeof item.text === 'string') { // item is Part, check for TextPart
+                } else if (item && typeof item === 'object' && 'text' in item && typeof item.text === 'string') {
                     combinedText += item.text + " ";
                 }
             }
             promptForLog = combinedText.trim();
-        } else { // contents is Content (i.e. { parts: Part[], role?: string })
-            // After type checks, 'contents' is inferred as 'Content' here
-            const textPartFound = contents.parts.find((p): p is { text: string } => 'text' in p && typeof p.text === 'string');
+        } else if (contents && typeof contents === 'object' && Array.isArray(contents.parts)) {
+            // contents is Content (i.e. { parts: Part[], role?: string })
+            const textPartFound = contents.parts.find((p: any) => p && typeof p === 'object' && 'text' in p && typeof p.text === 'string');
             if (textPartFound) {
               promptForLog = textPartFound.text;
             }
@@ -84,20 +78,23 @@ try {
             textResponse = `\`\`\`json\n${JSON.stringify(jsonResponse, null, 2)}\n\`\`\``;
         }
 
+        // Return a minimal GenerateContentResponse mock, cast as any for compatibility
         return {
           text: textResponse,
-          // @ts-ignore
-          candidates: [{ 
+          candidates: [{
             content: { parts: [{ text: textResponse }], role: 'model' },
             finishReason: 'STOP',
             index: 0,
             safetyRatings: [],
           }],
-          // @ts-ignore
-          promptFeedback: { safetyRatings: [] }
-        } as GenerateContentResponse;
+          promptFeedback: { safetyRatings: [] },
+          data: undefined,
+          functionCalls: undefined,
+          executableCode: undefined,
+          codeExecutionResult: undefined
+        } as any as GenerateContentResponse;
       },
-      generateContentStream: async (params: MockGenerateContentParameters): Promise<AsyncGenerator<GenerateContentResponse, any, unknown>> => {
+      generateContentStream: async (params: any): Promise<AsyncGenerator<GenerateContentResponse, any, unknown>> => {
         console.log("SIMULATED Gemini API Call: generateContentStream with params:", params);
         
         const { contents } = params;
@@ -105,19 +102,18 @@ try {
 
         if (typeof contents === 'string') {
           promptText = contents;
-        } else if (Array.isArray(contents)) { // contents is (string | Part)[]
+        } else if (Array.isArray(contents)) {
             let combinedText = "";
             for (const item of contents) {
                 if (typeof item === 'string') {
                     combinedText += item + " ";
-                } else if ('text' in item && typeof item.text === 'string') {
+                } else if (item && typeof item === 'object' && 'text' in item && typeof item.text === 'string') {
                     combinedText += item.text + " ";
                 }
             }
             promptText = combinedText.trim() || "Complex input";
-        } else { // contents is Content
-            // After type checks, 'contents' is inferred as 'Content' here
-            const textPartFound = contents.parts.find((p): p is { text: string } => 'text' in p && typeof p.text === 'string');
+        } else if (contents && typeof contents === 'object' && Array.isArray(contents.parts)) {
+            const textPartFound = contents.parts.find((p: any) => p && typeof p === 'object' && 'text' in p && typeof p.text === 'string');
             if (textPartFound) {
               promptText = textPartFound.text;
             }
@@ -127,10 +123,10 @@ try {
             const words = `This is a simulated streaming AI response to: "${promptText.substring(0,50)}...". It comes in chunks.`.split(' ');
             for (const word of words) {
               await new Promise(resolve => setTimeout(resolve, 100));
-              yield { text: word + ' ' } as GenerateContentResponse;
+              yield { text: word + ' ' } as any as GenerateContentResponse;
             }
         }
-        return streamGenerator(); // Return the async generator instance
+        return streamGenerator();
       }
     },
     // @ts-ignore
@@ -183,10 +179,10 @@ const generateText = async (prompt: string, systemInstruction?: string): Promise
       contents: prompt,
       config: {
         ...(systemInstruction && { systemInstruction }),
-        thinkingConfig: { thinkingBudget: 0 } 
+        thinkingConfig: { thinkingBudget: 0 }
       }
     });
-    return response.text;
+    return response.text ?? "Simulated AI error: No response.";
   } catch (error) {
     console.error("Error generating text (simulated):", error);
     return "Simulated AI error: Could not generate text.";
@@ -224,10 +220,10 @@ export const getNoteSummaryForSpeech = async (noteContent: string): Promise<stri
       contents: prompt,
       config: {
         systemInstruction: "You are an assistant that provides extremely concise summaries for audio playback.",
-        thinkingConfig: { thinkingBudget: 0 } 
+        thinkingConfig: { thinkingBudget: 0 }
       }
     });
-    return response.text;
+    return response.text ?? "Simulated AI error: No response.";
   } catch (error) {
     console.error("Error generating speech summary (simulated):", error);
     return "Simulated AI error: Could not generate summary for speech.";
@@ -254,12 +250,12 @@ export const chatWithAI = async (message: string, allNotes: Note[]): Promise<AIC
   }
 
   try {
-    if (!chatInstance) throw new Error("Chat not initialized"); 
+    if (!chatInstance) throw new Error("Chat not initialized");
     const response: GenerateContentResponse = await chatInstance.sendMessage({message});
     return {
       id: `ai-${Date.now()}`,
       sender: 'ai',
-      text: response.text,
+      text: response.text ?? "Simulated AI error: No response.",
       timestamp: Date.now(),
     };
   } catch (error) {
@@ -267,8 +263,8 @@ export const chatWithAI = async (message: string, allNotes: Note[]): Promise<AIC
     return {
       id: `ai-err-${Date.now()}`,
       sender: 'ai',
-      text: "Simulated AI error: Could not get response.", // Completed error message
-      timestamp: Date.now(), // Added missing timestamp
+      text: "Simulated AI error: Could not get response.",
+      timestamp: Date.now(),
     };
   }
 };
