@@ -5,63 +5,14 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>IntelliNote - AI Powered Notes</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              primary: '#0052CC', // A professional blue
-              'primary-dark': '#003E99',
-              'primary-light': '#D1E0FF',
-              secondary: '#FFAB00', // A vibrant amber/orange
-              'secondary-dark': '#CC8400',
-              accent: '#4CAF50', // A complementary green for AI features
-              'accent-dark': '#388E3C',
-              neutral: {
-                50: '#FAFBFC',
-                100: '#F1F2F4', // Light background for main content
-                200: '#E5E7EB', // Borders
-                300: '#D2D6DC',
-                400: '#9FA6B2',
-                500: '#6B7280', // Medium text
-                600: '#4B5563',
-                700: '#374151', // Darker text
-                800: '#1F2937',
-                900: '#111827',
-              },
-            },
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-            },
-          }
-        }
-      }
-    </script>
+    <!-- <script src="https://cdn.tailwindcss.com"></script> CDN kaldırıldı, prod ortamı için -->
+    <!-- Tailwind config script de kaldırıldı, artık tailwind.config.js ve index.css kullanılacak -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.1.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
-    "react/": "https://esm.sh/react@^19.1.0/",
-    "i18next": "https://esm.sh/i18next@^25.2.1",
-    "react-i18next": "https://esm.sh/react-i18next@^15.5.3",
-    "i18next-browser-languagedetector": "https://esm.sh/i18next-browser-languagedetector@^8.2.0",
-    "zustand": "https://esm.sh/zustand@^5.0.5",
-    "zustand/": "https://esm.sh/zustand@^5.0.5/",
-    "localforage": "https://esm.sh/localforage@^1.10.0",
-    "@google/genai": "https://esm.sh/@google/genai@^1.6.0",
-    "lucide-react": "https://esm.sh/lucide-react@^0.522.0",
-    "framer-motion": "https://esm.sh/framer-motion@^12.18.1",
-    "react-router-dom": "https://esm.sh/react-router-dom@^7.6.2"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
-</head>
+    <!-- importmap kaldırıldı, çünkü paketler package.json ile yönetiliyor ve Vite kullanılıyor -->
+    <link rel="stylesheet" href="/index.css">
+  </head>
   <body class="bg-neutral-100">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>

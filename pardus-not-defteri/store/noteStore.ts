@@ -96,7 +96,7 @@ export const useNoteStore = create<NoteState>()(
     }),
     {
       name: 'intellinote-storage',
-      storage: localForageAdapter as PersistStorage<NoteState>, // Cast because localForageAdapter is generic
+      storage: localForageAdapter as PersistStorage<PersistedNoteState>, // Cast because localForageAdapter is generic and matches partialize
       onRehydrateStorage: () => (persistedState, error) => { // persistedState is the rehydrated part
         if (error) {
           console.error("Failed to rehydrate state from storage:", error);
