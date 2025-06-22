@@ -98,7 +98,7 @@ export const useNotes = () => {
                 : n
             )
           );
-          setActiveAlarms(prev => prev.filter(alarm => alarm.timeoutId !== timeoutId));
+          setActiveAlarms(prev => prev.filter(alarm => alarm.timeoutId !== Number(timeoutId)));
         }, delay);
 
         setActiveAlarms(prev => [...prev, { timeoutId: Number(timeoutId), noteId: note.id, notificationId: note.notification!.id }]);
