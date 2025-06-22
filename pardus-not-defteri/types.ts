@@ -20,15 +20,16 @@ export interface Note {
   textColor?: string; // e.g., 'text-rose-800' for contrast with backgroundColor
 }
 
-export type ModalType = 
-  | 'addNote' 
-  | 'editNote' 
-  | 'aiHelper' 
-  | 'aiChat' 
-  | 'notification' 
-  | 'confirmDelete' 
+export type ModalType =
+  | 'addNote'
+  | 'editNote'
+  | 'aiHelper'
+  | 'aiChat'
+  | 'notification'
+  | 'confirmDelete'
   | 'summary'
-  | 'voiceCommand' // Added for voice input
+  | 'voiceCommand'
+  | 'viewNote' // Added for viewing note details
   | null;
 
 export interface AiChatMessage {
@@ -47,27 +48,34 @@ export interface CreateNoteAction {
   type: 'createNote';
   title: string;
   content: string;
-  category?: Category; // Optional category, AI might suggest or use default
+  category?: Category;
 }
 
 export interface SetReminderAction {
   type: 'setReminder';
-  noteIdentifier: string; // e.g., 'last', or title of the note if user specifies
-  time: string; // Time phrase from user, e.g., "tomorrow 3pm", "next Monday"
+  noteIdentifier: string;
+  time: string;
 }
 
 export interface ClarifyAction {
   type: 'clarify';
-  message: string; // Message from AI asking for clarification
+  message: string;
 }
 
 export interface NoActionDetectedAction {
     type: 'noActionDetected';
-    message: string; // Message from AI
+    message: string;
 }
 
 export type VoiceAction = CreateNoteAction | SetReminderAction | ClarifyAction | NoActionDetectedAction;
 
 export interface VoiceCommandResponse {
   actions: VoiceAction[];
+}
+
+// Interface for the ultra-simplified JSON structure AI is expected to return for note creation
+export interface SimplifiedNoteDataFromAI {
+    title?: string;
+    content?: string;
+    category?: string;
 }
