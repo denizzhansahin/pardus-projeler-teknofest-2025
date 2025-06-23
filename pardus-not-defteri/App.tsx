@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Note, ModalType, Category, AiHelperSuggestion, VoiceAction, VoiceCommandResponse, CreateNoteAction, ClarifyAction } from './types';
 import { useNotes, useCategories } from './hooks/useNotes';
-import useSpeechRecognition from './hooks/useSpeechRecognition';
+import useAudioRecorder, { AudioData } from './hooks/useAudioRecorder'; // Import useAudioRecorder
 import NoteCard from './components/NoteCard';
 import NoteFormModal from './components/NoteFormModal';
 import AiHelperModal from './components/AiHelperModal';
@@ -9,16 +9,30 @@ import AiChatModal from './components/AiChatModal';
 import NotificationModal from './components/NotificationModal';
 import ConfirmDeleteModal from './components/ConfirmDeleteModal';
 import VoiceCommandModal from './components/VoiceCommandModal';
-import NoteViewModal from './components/NoteViewModal'; // Import NoteViewModal
-import ApiKeySettingsModal from './components/ApiKeySettingsModal';
-import { summarizeTextWithAI, processVoiceCommand, getAiAssistance } from './services/geminiService';
+import NoteViewModal from './components/NoteViewModal';
+import SettingsApiKeyModal from './components/SettingsApiKeyModal';
+import { summarizeTextWithAI, processVoiceCommand, getAiAssistance, transcribeAudioWithAI } from './services/geminiService'; // Added transcribeAudioWithAI
 import { speakText, stopSpeaking } from './services/speechService';
 import LoadingSpinner from './components/LoadingSpinner';
 import Modal from './components/Modal';
 import { getCategoryStyle, NOTE_BACKGROUND_COLORS } from './constants';
+import CogIcon from './components/icons/CogIcon';
 
+// Define the type for items in processedVoiceActions state
+type ProcessedVoiceActionDisplayItem = {
+  action: VoiceAction;
+  status: 'success' | 'error';
+  message?: string;
+  noteId?: string;
+};
 
-const App: React.FC = () => {
+// Type for pending new note data from AI
+type PendingNewNoteDataType = {
+  title?: string;
+  content?: string;
+};
+
+export const App: React.FC = () => {
   const { notes, addNote, updateNote, deleteNote, setNoteNotification } = useNotes();
   const { categories, addCategory } = useCategories();
   const [activeModal, setActiveModal] = useState<ModalType>(null);
@@ -27,48 +41,80 @@ const App: React.FC = () => {
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<Category | 'All'>('All');
 
   const [aiHelperContext, setAiHelperContext] = useState<{ text: string; field: 'title' | 'content' }>({ text: '', field: 'content' });
-  const [lastAiSuggestion, setLastAiSuggestion] = useState<AiHelperSuggestion | undefined>(undefined);
+  const [pendingNewNoteData, setPendingNewNoteData] = useState<PendingNewNoteDataType | null>(null);
 
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryText, setSummaryText] = useState<string | null>(null);
   const [isSpeakingSummary, setIsSpeakingSummary] = useState(false);
 
-  const {
-    transcript,
-    interimTranscript,
-    isListening,
-    error: speechError,
-    isSupported: speechIsSupported,
-    startListening,
-    stopListening,
-    resetTranscript
-  } = useSpeechRecognition();
+  // Voice Command States (New Flow)
+  const { 
+    isRecording, 
+    elapsedTime, 
+    audioData, 
+    error: recorderError, 
+    startRecording, 
+    stopRecording,
+    resetRecording 
+  } = useAudioRecorder(); 
+  
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [transcribedText, setTranscribedText] = useState<string | null>(null);
+  const [transcriptionError, setTranscriptionError] = useState<string | null>(null);
+  
   const [isProcessingVoiceCommand, setIsProcessingVoiceCommand] = useState(false);
-  const [voiceProcessingError, setVoiceProcessingError] = useState<string | null>(null);
-  const [processedVoiceActions, setProcessedVoiceActions] = useState<{ action: VoiceAction; status: 'success' | 'error'; message?: string; noteId?: string }[]>([]);
+  const [commandProcessingError, setCommandProcessingError] = useState<string | null>(null);
+  const [processedVoiceActions, setProcessedVoiceActions] = useState<ProcessedVoiceActionDisplayItem[]>([]);
+  const [isMicrophoneSupported, setIsMicrophoneSupported] = useState(true); 
 
-  const [apiKeyModalOpen, setApiKeyModalOpen] = useState(false);
+  const audioDataProcessedRef = useRef(false);
 
-  const handleClearLastAiSuggestion = useCallback(() => {
-    setLastAiSuggestion(undefined);
+
+  useEffect(() => {
+    if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder)) {
+      setIsMicrophoneSupported(false);
+    }
+  }, []);
+
+  const resetVoiceCommandStates = useCallback(() => {
+    resetRecording(); 
+    audioDataProcessedRef.current = false; 
+    setIsTranscribing(false);
+    setTranscribedText(null);
+    setTranscriptionError(null);
+    setIsProcessingVoiceCommand(false);
+    setCommandProcessingError(null);
+    setProcessedVoiceActions([]);
+  }, [resetRecording]);
+
+
+  useEffect(() => {
+    if (audioData && audioData.base64 && audioData.mimeType && activeModal === 'voiceCommand' && !audioDataProcessedRef.current) {
+      audioDataProcessedRef.current = true; 
+      handleTranscribeAudio(audioData);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [audioData, activeModal]); 
+
+
+  const onConsumePendingNewNoteData = useCallback(() => {
+    setPendingNewNoteData(null);
   }, []);
 
   const openModal = (type: ModalType, note?: Note) => {
     setSelectedNote(note || null);
     if (type === 'voiceCommand') {
-        resetTranscript();
-        setProcessedVoiceActions([]);
-        setVoiceProcessingError(null);
+        resetVoiceCommandStates();
     }
-    // If opening addNote or editNote, and it's not from AI helper returning, clear any last suggestion
+    // If opening 'addNote' or 'editNote' *manually* (not from AI Helper flow)
+    // then clear any pending new note data.
     if ((type === 'addNote' || type === 'editNote') && activeModal !== 'aiHelper') {
-        handleClearLastAiSuggestion();
+        setPendingNewNoteData(null); 
     }
     setActiveModal(type);
     if (type === 'summary' && note) {
         handleSummarizeNote(note);
     }
-    // For viewNote, selectedNote is already set.
   };
 
   const closeModal = () => {
@@ -76,12 +122,13 @@ const App: React.FC = () => {
         stopSpeaking();
         setIsSpeakingSummary(false);
     }
-    if (activeModal === 'voiceCommand' && isListening) {
-        stopListening();
+    if (activeModal === 'voiceCommand' && isRecording) {
+        stopRecording(); 
+    }
+    if (activeModal === 'voiceCommand') { 
+        resetVoiceCommandStates();
     }
     setActiveModal(null);
-    // setSelectedNote(null); // Keep selectedNote if we transition from view to edit, etc.
-                           // Cleared explicitly when needed, e.g. after delete or when opening new addNote.
   };
 
   const handleSaveNote = (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'> | Note) => {
@@ -91,8 +138,8 @@ const App: React.FC = () => {
       addNote(noteData);
     }
     closeModal();
-    setSelectedNote(null); // Clear selected note after saving.
-    handleClearLastAiSuggestion();
+    setSelectedNote(null); 
+    setPendingNewNoteData(null); // Clear pending data after save
   };
 
   const handleDeleteNoteConfirmed = () => {
@@ -105,18 +152,28 @@ const App: React.FC = () => {
 
   const handleOpenAiHelper = (currentText: string, targetField: 'title' | 'content') => {
     setAiHelperContext({ text: currentText, field: targetField });
+    // If opening AI helper for a new note, ensure any old pending data is cleared
+    // before potentially setting new pending data via onApplyAiSuggestionToForm.
+    // If selectedNote exists, this doesn't apply to pendingNewNoteData.
+    if (!selectedNote) {
+        setPendingNewNoteData(null);
+    }
     setActiveModal('aiHelper');
   };
 
   const handleApplyAiSuggestionToForm = (suggestion: string) => {
     const { field } = aiHelperContext;
 
-    if (selectedNote) {
+    if (selectedNote) { // Editing existing note
         setSelectedNote(prev => prev ? { ...prev, [field]: suggestion } : null);
-        handleClearLastAiSuggestion();
+        setPendingNewNoteData(null); // Clear any pending data if user was working on new, then switched
         setActiveModal('editNote');
-    } else {
-        setLastAiSuggestion({ field, text: suggestion });
+    } else { // Creating a new note
+        setPendingNewNoteData(prev => ({ 
+            // Preserve other field if already set, e.g., user got title suggestion, then gets content
+            ...(prev || {}), 
+            [field]: suggestion 
+        }));
         setActiveModal('addNote');
     }
   };
@@ -151,7 +208,7 @@ const App: React.FC = () => {
       try {
         setIsSpeakingSummary(true);
         await speakText(summaryText);
-        setIsSpeakingSummary(false);
+        setIsSpeakingSummary(false); 
       } catch (error) {
         console.error("Error speaking summary:", error);
         setIsSpeakingSummary(false);
@@ -173,81 +230,146 @@ const App: React.FC = () => {
     }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [notes, searchTerm, selectedCategoryFilter]);
 
-  const handleProcessVoiceTranscript = async (text: string) => {
-    if (!text.trim()) return;
+
+  const handleStartRecording = async () => {
+    resetVoiceCommandStates(); 
+    try {
+      await startRecording();
+    } catch (e) {
+      console.error("Failed to start recording from App:", e);
+      // Error state is handled by useAudioRecorder hook
+    }
+  };
+  
+  const handleTranscribeAudio = async (recordedData: AudioData) => {
+    if (isTranscribing) {
+      return; 
+    }
+
+    setIsTranscribing(true);
+    setTranscriptionError(null);
+    setTranscribedText(null); 
+    setProcessedVoiceActions([]); 
+
+    try {
+      const transcript = await transcribeAudioWithAI(recordedData.base64, recordedData.mimeType);
+      setTranscribedText(transcript); 
+
+      if (transcript && transcript.trim()) {
+        await handleProcessTranscribedText(transcript); 
+      } else {
+        const errorMsg = "AI boş bir döküm metni döndürdü veya döküm başarısız oldu.";
+        setTranscriptionError(errorMsg);
+        setIsProcessingVoiceCommand(false); 
+        setProcessedVoiceActions([{ 
+            action: {type: 'clarify', message: "Ses kaydı anlaşılamadı veya boştu."},
+            status: 'error',
+            message: errorMsg
+        }]);
+      }
+    } catch (error) {
+      console.error("Error transcribing audio:", error);
+      const errorMessage = error instanceof Error ? error.message : "Bilinmeyen bir döküm hatası.";
+      setTranscriptionError(errorMessage);
+      setProcessedVoiceActions([{
+          action: {type: 'clarify', message: `Döküm hatası: ${errorMessage}`},
+          status: 'error',
+          message: `Ses yazıya dökülürken hata: ${errorMessage}`
+      }]);
+      setIsProcessingVoiceCommand(false);
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+  
+  const handleProcessTranscribedText = async (text: string) => {
+    if (!text.trim()) {
+      setCommandProcessingError("İşlenecek bir komut metni yok.");
+      setIsProcessingVoiceCommand(false);
+      return;
+    }
     setIsProcessingVoiceCommand(true);
-    setVoiceProcessingError(null);
+    setCommandProcessingError(null);
     setProcessedVoiceActions([]); 
 
     try {
       const result: VoiceCommandResponse | null = await processVoiceCommand(text, notes);
-      if (result && result.actions) {
-        let currentActionResults: { action: VoiceAction; status: 'success' | 'error'; message?: string; noteId?: string }[] = [];
+      if (result && result.actions && result.actions.length > 0) {
+        const actionToProcess = result.actions[0]; 
 
-        for (const action of result.actions) {
+        if (actionToProcess.type === 'createNote') {
+          const createAction = actionToProcess as CreateNoteAction;
+          const defaultBg = NOTE_BACKGROUND_COLORS.find(c => c.value === 'bg-slate-50') || NOTE_BACKGROUND_COLORS[0];
+          const newNoteData = {
+            title: createAction.title,
+            content: createAction.content,
+            category: createAction.category || 'General',
+            backgroundColor: defaultBg.value,
+            textColor: defaultBg.textColor,
+          };
+
+          const addedNote = addNote(newNoteData);
+          let message = `Not "${createAction.title}" oluşturuldu.`;
+          let finalStatus: 'success' | 'error' = 'success';
+          
           try {
-            if (action.type === 'createNote') {
-              const createAction = action as CreateNoteAction;
-              const defaultBg = NOTE_BACKGROUND_COLORS.find(c => c.value === 'bg-slate-50') || NOTE_BACKGROUND_COLORS[0];
-              const newNoteData = {
-                title: createAction.title,
-                content: createAction.content,
-                category: createAction.category || 'General',
-                backgroundColor: defaultBg.value,
-                textColor: defaultBg.textColor,
-              };
-
-              const addedNote = addNote(newNoteData);
-              currentActionResults.push({ action, status: 'success', message: `Not "${createAction.title}" oluşturuldu.`, noteId: addedNote.id });
-              setProcessedVoiceActions([...currentActionResults]);
-
-              try {
-                const initialContent = addedNote.content;
-                const improvedContent = await getAiAssistance(initialContent, "metni geliştir", 'content');
-                
+            const initialContent = addedNote.content;
+            const improvedContent = await getAiAssistance(initialContent, "metni geliştir ve hataları düzelt", 'content');
+            
+            if (improvedContent.trim() && improvedContent.trim() !== initialContent.trim()) {
                 const updatedNoteWithImprovedContent: Note = { ...addedNote, content: improvedContent };
                 updateNote(updatedNoteWithImprovedContent);
-                const enhancementMessage = `Notun içeriği AI tarafından geliştirildi.`;
-                currentActionResults.push({ 
-                    action: {type: 'clarify', message: enhancementMessage} as ClarifyAction, 
-                    status: 'success', 
-                    message: enhancementMessage,
-                    noteId: addedNote.id 
-                });
-                
-              } catch (enhancementError) {
-                console.error("Error enhancing note content:", enhancementError);
-                const contentEnhancementErrorMessage = (enhancementError as Error).message || "İçerik geliştirilemedi: Bilinmeyen AI Hatası";
-                currentActionResults.push({ 
-                    action: {type: 'clarify', message: contentEnhancementErrorMessage} as ClarifyAction, 
-                    status: 'error', 
-                    message: contentEnhancementErrorMessage,
-                    noteId: addedNote.id 
-                });
-              }
-              setProcessedVoiceActions([...currentActionResults]);
-
-            } else if (action.type === 'clarify' || action.type === 'noActionDetected') {
-              currentActionResults.push({ action, status: 'success', message: action.message });
+                message += ` İçeriği AI tarafından ayrıca geliştirildi.`;
             }
-          } catch(innerError) {
-             console.error("Error processing single voice action:", innerError, action);
-             currentActionResults.push({ action, status: 'error', message: `Eylem (${action.type}) işlenirken hata.` });
+          } catch (enhancementError) {
+            console.error("Error enhancing note content:", enhancementError);
+            const contentEnhancementErrorMessage = (enhancementError as Error).message || "İçerik geliştirilemedi: Bilinmeyen AI Hatası";
+            message += ` İçerik geliştirme başarısız oldu: ${contentEnhancementErrorMessage}.`;
           }
+          
+          const finalActionItem: ProcessedVoiceActionDisplayItem = { 
+            action: actionToProcess, 
+            status: finalStatus, 
+            message: message, 
+            noteId: addedNote.id 
+          };
+          setProcessedVoiceActions([finalActionItem]);
+
+        } else if (actionToProcess.type === 'clarify' || actionToProcess.type === 'noActionDetected') {
+          const clarifyResultAction: ProcessedVoiceActionDisplayItem = { 
+            action: actionToProcess, 
+            status: 'success', 
+            message: actionToProcess.message 
+          };
+          setProcessedVoiceActions([clarifyResultAction]);
+        } else {
+            const unknownActionItem: ProcessedVoiceActionDisplayItem = { 
+              action: actionToProcess, 
+              status: 'error', 
+              message: `Bilinmeyen eylem türü (${actionToProcess.type}) işlenemedi.` 
+            };
+            setProcessedVoiceActions([unknownActionItem]);
         }
-        setProcessedVoiceActions(currentActionResults);
       } else {
-        setVoiceProcessingError("AI'dan beklenen formatta yanıt alınamadı veya eylem bulunamadı.");
-        setProcessedVoiceActions([{ action: {type: 'clarify', message: "Yanıt işlenemedi."}, status: 'error', message: "AI'dan beklenen formatta yanıt alınamadı veya eylem bulunamadı." }]);
+        const noActionResultMessage = "AI'dan beklenen formatta yanıt alınamadı veya eylem bulunamadı.";
+        setCommandProcessingError(noActionResultMessage);
+        setProcessedVoiceActions([{ 
+            action: {type: 'clarify', message: "Yanıt işlenemedi."}, 
+            status: 'error', 
+            message: noActionResultMessage
+        }]);
       }
     } catch (error) {
       console.error("Error processing voice command:", error);
       const errorMessage = error instanceof Error ? error.message : "Bilinmeyen bir hata oluştu.";
-      setVoiceProcessingError(errorMessage);
-      setProcessedVoiceActions([{ action: {type: 'clarify', message: errorMessage}, status: 'error', message: `Sesli komut işlenirken hata: ${errorMessage}` }]);
+      setCommandProcessingError(errorMessage);
+      setProcessedVoiceActions([{
+          action: {type: 'clarify', message: errorMessage},
+          status: 'error',
+          message: `Sesli komut işlenirken hata: ${errorMessage}`
+      }]);
     } finally {
       setIsProcessingVoiceCommand(false);
-      resetTranscript(); 
     }
   };
 
@@ -260,18 +382,33 @@ const App: React.FC = () => {
   }, []);
 
 
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [hasApiKey, setHasApiKey] = useState(false);
+
+  useEffect(() => {
+    const key = localStorage.getItem('GOOGLE_API_KEY');
+    setHasApiKey(!!key);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100">
+    <div className="min-h-screen text-slate-100 bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900">
       <header className="bg-slate-800/70 backdrop-blur-lg shadow-xl sticky top-0 z-40">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex items-center space-x-3">
             <SparklesIcon className="w-10 h-10 text-sky-400" />
             <h1 className="text-3xl font-bold tracking-tight gradient-text bg-gradient-to-r from-sky-400 via-rose-400 to-lime-400">
-             Pardus AI Not Defteri
+              Pardus AI Not Defteri
             </h1>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-3">
-             {speechIsSupported && (
+            <button
+              onClick={() => setIsSettingsModalOpen(true)}
+              className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white flex items-center justify-center shadow-md border border-slate-600"
+              title="Ayarlar"
+            >
+              <CogIcon className="w-7 h-7" />
+            </button>
+             {isMicrophoneSupported && ( 
                  <button
                     onClick={() => openModal('voiceCommand')}
                     title="Sesli Komut"
@@ -281,7 +418,7 @@ const App: React.FC = () => {
                 </button>
              )}
             <button
-              onClick={() => { setSelectedNote(null); handleClearLastAiSuggestion(); openModal('addNote');}}
+              onClick={() => { setSelectedNote(null); openModal('addNote');}}
               className="px-4 py-3 bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:from-indigo-600 hover:via-purple-700 hover:to-pink-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center space-x-2.5"
             >
               <PlusCircleIcon className="w-6 h-6" />
@@ -313,7 +450,7 @@ const App: React.FC = () => {
                 className="w-full sm:w-auto px-4 py-3.5 border border-slate-600/70 bg-slate-700/50 text-slate-100 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
             >
                 {filterCategories.map(cat => (
-                  <option key={cat} value={cat} style={{ backgroundColor: cat === 'All' ? '#334155' /*slate-700*/ : getCategoryStyle(cat).bg.replace('bg-', '#'), color: cat === 'All' ? 'white' : getCategoryStyle(cat).text.replace('text-','').includes('100') || getCategoryStyle(cat).text.includes('200') || getCategoryStyle(cat).text.includes('300') ? getCategoryStyle(cat).text.replace('text-','') : 'white' }}>
+                  <option key={cat} value={cat} style={{ backgroundColor: cat === 'All' ? '#334155' : getCategoryStyle(cat).bg.replace('bg-', '#'), color: cat === 'All' ? 'white' : getCategoryStyle(cat).text.replace('text-','').includes('100') || getCategoryStyle(cat).text.includes('200') || getCategoryStyle(cat).text.includes('300') ? getCategoryStyle(cat).text.replace('text-','') : 'white' }}>
                     {cat === 'All' ? 'Tüm Kategoriler' : cat}
                   </option>
                 ))}
@@ -340,11 +477,11 @@ const App: React.FC = () => {
               <NoteCard
                 key={note.id}
                 note={note}
-                onEdit={(n) => { setSelectedNote(n); handleClearLastAiSuggestion(); openModal('editNote', n);}}
+                onEdit={(n) => { setSelectedNote(n); openModal('editNote', n);}}
                 onDelete={(id) => openModal('confirmDelete', notes.find(n => n.id === id))}
                 onSetNotification={(n) => openModal('notification', n)}
                 onSummarize={(n) => handleSummarizeNote(n)}
-                onViewDetails={(n) => openModal('viewNote', n)} // Pass onViewDetails
+                onViewDetails={(n) => openModal('viewNote', n)}
               />
             ))}
           </div>
@@ -354,14 +491,14 @@ const App: React.FC = () => {
       { (activeModal === 'addNote' || activeModal === 'editNote') && (
         <NoteFormModal
           isOpen={true}
-          onClose={() => { closeModal(); setSelectedNote(null); handleClearLastAiSuggestion();}}
+          onClose={() => { closeModal(); setSelectedNote(null); }}
           onSave={handleSaveNote}
           noteToEdit={selectedNote}
           onOpenAiHelper={handleOpenAiHelper}
           categories={categories}
           onAddCategory={addCategory}
-          lastAiSuggestion={lastAiSuggestion}
-          onClearLastAiSuggestion={handleClearLastAiSuggestion}
+          pendingNewNoteData={pendingNewNoteData}
+          onConsumePendingNewNoteData={onConsumePendingNewNoteData}
         />
       )}
 
@@ -426,7 +563,7 @@ const App: React.FC = () => {
                     </div>
                 </div>
             )}
-             {!summaryText && !summaryLoading && ( // This case might be covered by summaryText having an error message already
+             {!summaryText && !summaryLoading && ( 
                 <p className="text-red-400">Özet yüklenemedi.</p>
              )}
             <div className="flex justify-end mt-6">
@@ -441,17 +578,18 @@ const App: React.FC = () => {
         <VoiceCommandModal
           isOpen={true}
           onClose={closeModal}
-          isListening={isListening}
-          isProcessing={isProcessingVoiceCommand}
-          transcript={transcript}
-          interimTranscript={interimTranscript}
-          speechError={speechError}
-          processingError={voiceProcessingError}
-          processedActions={processedVoiceActions}
-          onStartListening={startListening}
-          onStopListening={stopListening}
-          onProcessTranscript={handleProcessVoiceTranscript}
-          isSupported={speechIsSupported}
+          isRecording={isRecording}
+          isTranscribing={isTranscribing}
+          isProcessingCommand={isProcessingVoiceCommand}
+          elapsedTime={elapsedTime}
+          transcribedText={transcribedText}
+          recorderError={recorderError}
+          transcriptionError={transcriptionError}
+          commandProcessingError={commandProcessingError}
+          processedCommandActions={processedVoiceActions}
+          onStartRecording={handleStartRecording}
+          onStopRecording={stopRecording}
+          isMicrophoneSupported={isMicrophoneSupported}
         />
       )}
 
@@ -461,31 +599,23 @@ const App: React.FC = () => {
           onClose={() => { closeModal(); setSelectedNote(null); }}
           note={selectedNote}
           onEdit={(noteToEdit) => {
-            // closeModal(); 
             openModal('editNote', noteToEdit);
           }}
           onDelete={(noteIdToDelete) => {
-            // closeModal(); 
             openModal('confirmDelete', notes.find(n => n.id === noteIdToDelete));
           }}
           onSetNotification={(noteForNotification) => {
-            // closeModal(); 
             openModal('notification', noteForNotification);
           }}
           onSummarize={(noteToSummarize) => {
-            // closeModal(); 
             handleSummarizeNote(noteToSummarize); 
           }}
         />
       )}
 
-      <button
-        className="fixed bottom-6 right-6 z-50 px-4 py-2 bg-sky-700 hover:bg-sky-800 text-white rounded-lg shadow-lg font-semibold"
-        onClick={() => setApiKeyModalOpen(true)}
-      >
-        API Anahtarı
-      </button>
-      <ApiKeySettingsModal isOpen={apiKeyModalOpen} onClose={() => setApiKeyModalOpen(false)} />
+      {isSettingsModalOpen && (
+        <SettingsApiKeyModal isOpen={isSettingsModalOpen} onClose={() => setIsSettingsModalOpen(false)} />
+      )}
     </div>
   );
 };
@@ -521,4 +651,6 @@ const MicrophoneIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
-export default App;
+// Remove default export if it exists
+// export default App; 
+// The 'export const App' above handles the named export.

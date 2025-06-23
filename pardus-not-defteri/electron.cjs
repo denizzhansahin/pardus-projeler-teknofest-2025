@@ -1,5 +1,5 @@
 // electron.cjs
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, session } = require('electron');
 const path = require('path');
 const url = require('url');
 
@@ -13,6 +13,12 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      webSecurity: true, // Güvenlik için true bırakın
+      sandbox: false,    // Gerekirse false (medya erişimi için)
+      // enableRemoteModule: false, // Gerekirse ekleyin
+      // allowRunningInsecureContent: false, // Gerekirse ekleyin
+      // devTools: true, // Geliştirme için
+      // Diğer ayarlar...
     },
   });
 
@@ -43,6 +49,16 @@ function createWindow() {
 // Electron hazır olduğunda pencereyi oluştur.
 app.whenReady().then(() => {
   createWindow();
+
+  // Mikrofon ve medya izinlerini otomatik olarak ver
+  session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
+    if (permission === 'media') {
+      // Kamera ve mikrofon izinlerini otomatik olarak ver
+      callback(true);
+    } else {
+      callback(false);
+    }
+  });
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
