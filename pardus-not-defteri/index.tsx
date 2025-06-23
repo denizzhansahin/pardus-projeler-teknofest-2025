@@ -1,7 +1,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
+import { App } from './App'; // Changed path to direct relative path
 
 // Request notification permission early
 if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {

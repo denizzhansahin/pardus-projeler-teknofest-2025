@@ -1,9 +1,15 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Note, Category, AiHelperSuggestion } from '../types';
+import { Note, Category } from '../types'; // Removed AiHelperSuggestion as it's handled by App.tsx
 import Modal from './Modal';
 import IconButton from './IconButton';
 import { NOTE_BACKGROUND_COLORS, getCategoryStyle } from '../constants';
+
+// Type for pending new note data from AI, received from App.tsx
+interface PendingNewNoteDataType {
+  title?: string;
+  content?: string;
+}
 
 interface NoteFormModalProps {
   isOpen: boolean;
@@ -13,14 +19,14 @@ interface NoteFormModalProps {
   onOpenAiHelper: (currentText: string, targetField: 'title' | 'content') => void;
   categories: Category[];
   onAddCategory: (newCategory: Category) => void;
-  lastAiSuggestion?: AiHelperSuggestion;
-  onClearLastAiSuggestion: () => void;
+  pendingNewNoteData?: PendingNewNoteDataType | null; // Changed from lastAiSuggestion
+  onConsumePendingNewNoteData: () => void; // Changed from onClearLastAiSuggestion
 }
 
 const NoteFormModal: React.FC<NoteFormModalProps> = ({ 
   isOpen, onClose, onSave, noteToEdit, onOpenAiHelper, 
   categories, onAddCategory,
-  lastAiSuggestion, onClearLastAiSuggestion
+  pendingNewNoteData, onConsumePendingNewNoteData 
 }) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -33,14 +39,20 @@ const NoteFormModal: React.FC<NoteFormModalProps> = ({
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const newCategoryInputRef = useRef<HTMLInputElement>(null);
-
-  // useRef for defaultNoteBg as its value is derived from constants and doesn't need to trigger effects.
   const defaultNoteBg = useRef(NOTE_BACKGROUND_COLORS.find(c => c.value === 'bg-slate-50') || NOTE_BACKGROUND_COLORS[0]);
 
-
+  // Effect 1: Initialize/reset form based on mode (new/edit)
   useEffect(() => {
-    if (isOpen) {
-      if (noteToEdit) {
+    if (!isOpen) {
+        // If modal closes with pending data (e.g., user clicked outside), clear it.
+        if (pendingNewNoteData) { 
+            onConsumePendingNewNoteData();
+        }
+        return;
+    }
+
+    if (noteToEdit) {
+        // Editing existing note
         setTitle(noteToEdit.title);
         setContent(noteToEdit.content);
         setSelectedCategory(noteToEdit.category);
@@ -49,43 +61,49 @@ const NoteFormModal: React.FC<NoteFormModalProps> = ({
         setSelectedBgColor(noteToEdit.backgroundColor || defaultNoteBg.current.value);
         setSelectedTextColor(noteToEdit.textColor || defaultNoteBg.current.textColor);
         
-        // If noteToEdit is present, any lastAiSuggestion should have been handled by App.tsx
-        // by updating noteToEdit directly. We clear lastAiSuggestion here defensively
-        // or if it was meant for a new note and user switched context.
-        if (lastAiSuggestion) {
-            onClearLastAiSuggestion();
+        // If user was creating new, got suggestion, then switched to edit mode, clear pending data.
+        if (pendingNewNoteData) {
+            onConsumePendingNewNoteData();
         }
-      } else { 
-        // Adding a new note
-        // Reset fields first, then apply suggestion if available.
-        setTitle('');
-        setContent('');
+    } else {
+        // Adding a new note.
+        // If there's pendingNewNoteData, Effect 2 will handle applying it to title/content.
+        // This block sets defaults for fields not covered by pendingNewNoteData,
+        // or all fields if no pendingNewNoteData.
+        if (!pendingNewNoteData) {
+            setTitle('');
+            setContent('');
+        }
         setSelectedCategory(categories[0] || 'General');
         setImageBase64(undefined);
         setLinkUrl('');
         setSelectedBgColor(defaultNoteBg.current.value);
         setSelectedTextColor(defaultNoteBg.current.textColor);
-
-        if (lastAiSuggestion) {
-          if (lastAiSuggestion.field === 'title') {
-            setTitle(lastAiSuggestion.text);
-          } else if (lastAiSuggestion.field === 'content') {
-            setContent(lastAiSuggestion.text);
-          }
-          onClearLastAiSuggestion(); 
-        }
-      }
-      setShowNewCategoryInput(false);
-      setNewCategoryName('');
     }
-  }, [isOpen, noteToEdit, categories, lastAiSuggestion, onClearLastAiSuggestion]);
+    setShowNewCategoryInput(false);
+    setNewCategoryName('');
+  }, [isOpen, noteToEdit, categories, defaultNoteBg]); // pendingNewNoteData and onConsume are handled by Effect 2 for new notes.
+
+  // Effect 2: Apply AI suggestion (pendingNewNoteData) for new notes
+  useEffect(() => {
+    if (isOpen && !noteToEdit && pendingNewNoteData) {
+        // Only apply if the field exists in pending data
+        if (typeof pendingNewNoteData.title === 'string') {
+            setTitle(pendingNewNoteData.title);
+        }
+        if (typeof pendingNewNoteData.content === 'string') {
+            setContent(pendingNewNoteData.content);
+        }
+        onConsumePendingNewNoteData(); // Consume after applying
+    }
+  }, [isOpen, noteToEdit, pendingNewNoteData, onConsumePendingNewNoteData]);
 
 
   useEffect(() => {
-    if (showNewCategoryInput && newCategoryInputRef.current) {
+    if (isOpen && showNewCategoryInput && newCategoryInputRef.current) {
       newCategoryInputRef.current.focus();
     }
-  }, [showNewCategoryInput]);
+  }, [isOpen, showNewCategoryInput]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -145,7 +163,7 @@ const NoteFormModal: React.FC<NoteFormModalProps> = ({
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 15 * 1024 * 1024) { // Increased limit to 15MB
+      if (file.size > 15 * 1024 * 1024) { 
         alert("Dosya boyutu 15MB'den büyük olamaz. Lütfen daha küçük bir resim seçin.");
         e.target.value = ''; 
         return;
@@ -221,7 +239,7 @@ const NoteFormModal: React.FC<NoteFormModalProps> = ({
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
-            <label htmlFor="imageUpload" className="block text-sm font-medium mb-1.5 text-slate-300">Görsel (Max 15MB)</label> {/* Updated label */}
+            <label htmlFor="imageUpload" className="block text-sm font-medium mb-1.5 text-slate-300">Görsel (Max 15MB)</label>
             <input
               type="file" id="imageUpload" accept="image/png, image/jpeg, image/gif, image/webp"
               onChange={handleImageUpload}

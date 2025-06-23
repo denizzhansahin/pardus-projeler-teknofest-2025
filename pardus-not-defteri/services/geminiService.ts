@@ -1,16 +1,14 @@
-import { GoogleGenAI, GenerateContentResponse, Chat, Content } from "@google/genai";
+import { GoogleGenAI, GenerateContentResponse, Chat, Content, Part } from "@google/genai";
 import { Note, AiChatMessage, VoiceCommandResponse, VoiceAction, CreateNoteAction, ClarifyAction, NoActionDetectedAction, DEFAULT_CATEGORIES, SimplifiedNoteDataFromAI } from '../types';
 import { AI_MODEL_TEXT, MAX_NOTES_FOR_AI_CONTEXT, MAX_NOTE_CONTENT_FOR_AI_CONTEXT } from '../constants';
 
 let ai: GoogleGenAI | null = null;
 
-const LOCAL_STORAGE_KEY = 'PARDUS_AI_API_KEY';
-
 const getApiKey = (): string => {
   // Önce localStorage'dan oku (tarayıcıda çalışıyorsa)
   if (typeof window !== 'undefined' && window.localStorage) {
-    const key = window.localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (key && key.trim()) return key.trim();
+    const key = window.localStorage.getItem('GOOGLE_API_KEY');
+    if (key) return key;
   }
   if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
     return process.env.API_KEY;
@@ -20,7 +18,7 @@ const getApiKey = (): string => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (globalThis as any).API_KEY;
   }
-  console.error("API_KEY is not configured. Please set API_KEY in your environment or on globalThis.");
+  console.error("API_KEY is not configured. Please set API_KEY in your environment, globalThis, or localStorage.");
   throw new Error("API_KEY is not configured.");
 };
 
@@ -261,50 +259,73 @@ export const resetChat = () => {
     chatInstance = null;
 };
 
+export const transcribeAudioWithAI = async (audioBase64: string, mimeType: string): Promise<string> => {
+  const client = getAiClient();
+  const audioPart: Part = {
+    inlineData: {
+      mimeType: mimeType,
+      data: audioBase64,
+    },
+  };
+  const textPart: Part = { text: "Bu ses kaydını yazıya dök. Sadece yazıya dökülmüş metni döndür, başka bir şey ekleme." };
+
+  try {
+    const response: GenerateContentResponse = await client.models.generateContent({
+      model: AI_MODEL_TEXT, // Using the same text model, but it's multimodal
+      contents: { parts: [textPart, audioPart] }, // Order might matter, text prompt first
+    });
+    let transcript = response.text.trim();
+    if (!transcript) {
+        throw new Error("AI, sesi yazıya dökemedi veya boş bir metin döndürdü.");
+    }
+    return transcript;
+  } catch (error) {
+    throw handleError(error, "ses dökümü");
+  }
+};
+
 
 export const processVoiceCommand = async (transcript: string, currentNotes: Note[]): Promise<VoiceCommandResponse | null> => {
   const client = getAiClient();
   const notesContextForVoice = formatNotesForContext(currentNotes, 'voice');
   const availableCategoriesString = DEFAULT_CATEGORIES.join(', ');
 
+  // Updated system instruction to be more direct, assuming 'transcript' is now higher quality from Gemini.
   const systemInstruction = `Sen bir not alma uygulaması için sesli komutları işleyen, YARATICI bir yapay zeka asistanısın.
-Görevin, kullanıcının konuşmasını analiz ederek aşağıdaki formatta bir JSON nesnesi oluşturmaktır.
+Kullanıcının konuşması (bir ses kaydından yazıya dökülmüş) sana verilecek.
+Görevin, bu yazıya dökülmüş konuşmayı analiz ederek aşağıdaki formatta bir JSON nesnesi oluşturmaktır.
 SADECE JSON nesnesini döndür. Başına veya sonuna \`\`\`json \`\`\` veya başka bir metin EKLEME.
 
 JSON ÇIKTI FORMATI:
 {
   "title": "YARATICI VE İÇERİKTEN FARKLI BAŞLIK",
-  "content": "KULLANICININ İFADESİ VEYA NOTUN ÖZÜ",
+  "content": "YAZIYA DÖKÜLMÜŞ İFADENİN ÖZÜ VEYA TAMAMI",
   "category": "UYGUN KATEGORİ"
 }
 
 ANAHTAR KURALLAR:
-1.  İÇERİK (content): Kullanıcının söylediği ifadeyi (ne kadar kısa olursa olsun, TEK BİR KELİME bile) doğrudan 'content' alanına yaz.
-    *   Eğer kullanıcı "not oluştur" gibi genel bir komut verirse veya hiçbir şey söylemezse, 'content' için "Bu not sesli komutla oluşturuldu. Detaylar kullanıcı tarafından belirtilmedi." gibi bir ifade kullan.
+1.  İÇERİK (content): Kullanıcının yazıya dökülmüş ifadesini (ne kadar kısa olursa olsun, TEK BİR KELİME bile) 'content' alanına yaz. Bu, AI tarafından yazıya dökülmüş metindir.
+    *   Eğer kullanıcı "not oluştur" gibi genel bir komut verirse veya yazıya dökülmüş metin belirsizse, 'content' için "Bu not sesli komutla oluşturuldu. Detaylar kullanıcı tarafından belirtilmedi." gibi bir ifade kullan.
 
 2.  BAŞLIK (title): BU EN ÖNEMLİ KISIMDIR! 'title' alanı, yukarıda belirlediğin 'content' alanından KESİNLİKLE FARKLI OLMALIDIR.
     *   Başlık, içeriği KOPYALAMAMALI; onunla ilgili YARATICI, ÖZETLEYİCİ veya BAĞLAMSAL bir ifade sunmalıdır.
-    *   Kullanıcı girdisi kısaysa (1-3 kelime), bu fark daha da önemlidir. Başlık, içeriğin yeniden yazılmış hali olmamalıdır.
-    *   ÖRNEKLER:
-        *   KÖTÜ BAŞLIK (İçerikle Aynı/Çok Benzer - BUNU YAPMA!):
-            *   content: "Süt al" -> title: "Süt al" (YANLIŞ!)
-            *   content: "Toplantı yarın" -> title: "Yarınki toplantı" (YANLIŞ!)
+    *   Yazıya dökülmüş girdi kısaysa (1-3 kelime), bu fark daha da önemlidir. Başlık, içeriğin yeniden yazılmış hali olmamalıdır.
+    *   ÖRNEKLER (yazıya dökülmüş metin üzerinden):
         *   İYİ BAŞLIK (İçerikten Farklı ve Yaratıcı - BUNU HEDEFLE!):
-            *   content: "Süt al" -> title: "Market Alışverişi Hatırlatması" VEYA "Alınacaklar Listesi"
-            *   content: "Proje toplantısı yarın 10'da" -> title: "Önemli Takvim Etkinliği" VEYA "Yarının Gündemi"
-            *   content: "Kitap" (Tek kelime) -> title: "Okuma Listesi Notu" VEYA "Kitaplarla İlgili Fikir"
-            *   content: "Spor" (Tek kelime) -> title: "Fiziksel Aktivite Planı" VEYA "Egzersiz Programı"
-            *   content: "Acil" (Tek kelime) -> title: "Önemli Uyarı" VEYA "Acil Durum Notu"
+            *   content (transkript): "Süt almam lazım" -> title: "Market Alışverişi Hatırlatması" VEYA "Alınacaklar Listesi"
+            *   content (transkript): "Proje toplantısı yarın sabah saat 10'da" -> title: "Önemli Takvim Etkinliği" VEYA "Yarının Gündemi"
+            *   content (transkript): "Kitap oku" -> title: "Okuma Listesi Notu" VEYA "Kitaplarla İlgili Fikir"
+            *   content (transkript): "Acil arama yap" -> title: "Önemli Telefon Görüşmesi" VEYA "Acil Durum Notu"
 
-3.  KATEGORİ (category): Kullanıcının konuşmasından şu kategorilerden birini (${availableCategoriesString}) çıkar veya uygun bir tane bul. Bulamazsan, emin değilsen veya belirtilmemişse HER ZAMAN "General" kullan.
+3.  KATEGORİ (category): Yazıya dökülmüş konuşmadan şu kategorilerden birini (${availableCategoriesString}) çıkar veya uygun bir tane bul. Bulamazsan, emin değilsen veya belirtilmemişse HER ZAMAN "General" kullan.
 
 4.  HER ZAMAN yukarıdaki 3 alanı da içeren geçerli bir JSON döndür. Boş veya eksik alanlı JSON döndürme.
 
-Amacın, kullanıcıya değer katan, düşünülmüş notlar oluşturmaktır. Basit bir tekrar yapma. Konuşmanın genel anlamından bu bilgileri kendin belirle.
+Amacın, kullanıcıya değer katan, düşünülmüş notlar oluşturmaktır. Basit bir tekrar yapma. Yazıya dökülmüş konuşmanın genel anlamından bu bilgileri kendin belirle.
 ${notesContextForVoice}
 `;
 
-  const userPrompt = `Kullanıcı konuşması: "${transcript}"`;
+  const userPrompt = `Kullanıcının yazıya dökülmüş konuşması: "${transcript}"`;
 
   try {
     const response: GenerateContentResponse = await client.models.generateContent({
@@ -354,9 +375,14 @@ ${notesContextForVoice}
           } as ClarifyAction);
       } else {
         let finalTitle = title;
-        if (title.toLowerCase() === content.toLowerCase() && title.length > 0) {
+        // Check if title is too similar to content, especially if content is short.
+        // This check might need refinement.
+        if (title.toLowerCase() === content.toLowerCase() && title.length > 0 && title.length < 30) { 
             finalTitle = "Sesli Komut Notu: " + title; 
+        } else if (!commandData.title && commandData.content) { // If title was auto-generated from content
+            finalTitle = "Sesli Komut: " + (content.substring(0,25) + (content.length > 25 ? "..." : ""));
         }
+
 
         actions.push({
           type: 'createNote',

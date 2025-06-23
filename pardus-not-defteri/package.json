@@ -19,19 +19,20 @@
     "electron:build-win": "npm run build && electron-builder --win --x64"
   },
   "dependencies": {
-    "@google/genai": "^1.6.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "@google/genai": "^1.6.0",
     "axios": "^1.8.4",
-    "react-router-dom": "^7.4.1",
     "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
-    "@types/react": "^19.1.8",
     "typescript": "~5.7.2",
     "vite": "^6.2.0",
-    "@eslint/js": "^9.9.1",
+
+
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.21",
     "concurrently": "^9.1.2",
@@ -46,9 +47,9 @@
     "typescript-eslint": "^8.3.0",
     "wait-on": "^8.0.3"
   },
-  "build": {
+    "build": {
     "appId": "com.denizhan.pardusNotDefteri",
-    "productName": "Not Defteri with Gemini",
+    "productName": "Pardus Not Defteri with Gemini",
     "files": [
       "dist/**/*",
       "electron.cjs",
@@ -80,4 +81,5 @@
       "icon": "assets/Pardus-Logo.icns"
     }
   }
+
 }
