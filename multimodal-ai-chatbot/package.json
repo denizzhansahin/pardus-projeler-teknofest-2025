@@ -49,8 +49,8 @@
     "wait-on": "^8.0.3"
   },
   "build": {
-    "appId": "com.denizhan.pardusAIGemini",
-    "productName": "Pardus AI with Gemini",
+    "appId": "com.denizhan.pardusAI",
+    "productName": "Pardus AI with Orijinal API",
     "files": [
       "dist/**/*",
       "electron.cjs",
