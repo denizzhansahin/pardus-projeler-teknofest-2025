@@ -34,12 +34,14 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, currentS
   const [defaultCity, setDefaultCity] = useState(currentSettings.defaultCity);
   const [currentBackground, setCurrentBackground] = useState<ChatBackgroundStyle>(currentSettings.backgroundStyle);
   const [apiKey, setApiKey] = useState<string>(localStorage.getItem('pardusRunApiKey') || '');
+  const [prevApiKey, setPrevApiKey] = useState<string>(localStorage.getItem('pardusRunApiKey') || '');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setDefaultCity(currentSettings.defaultCity);
     setCurrentBackground(currentSettings.backgroundStyle);
     setApiKey(localStorage.getItem('pardusRunApiKey') || '');
+    setPrevApiKey(localStorage.getItem('pardusRunApiKey') || '');
   }, [currentSettings]);
 
   // Type assertion for background type
@@ -69,7 +71,26 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, currentS
   };
 
   const handleSave = () => {
-    localStorage.setItem('pardusRunApiKey', apiKey.trim());
+    const trimmedApiKey = apiKey.trim();
+    const apiKeyChanged = trimmedApiKey !== prevApiKey;
+    if (apiKeyChanged) {
+      const confirmed = window.confirm('API Key değiştirildi. Değişikliklerin geçerli olması için sayfa yenilenecek. Devam etmek istiyor musunuz?');
+      if (confirmed) {
+        localStorage.setItem('pardusRunApiKey', trimmedApiKey);
+        const newSettings: AppSettings = {
+          defaultCity: defaultCity.trim() || DEFAULT_SETTINGS.defaultCity,
+          backgroundStyle: currentBackground,
+          appBackgroundColor: currentBackground.type === 'color' ? currentBackground.value : (currentBackground.type === 'default' ? DEFAULT_APP_BACKGROUND_COLOR : DEFAULT_APP_BACKGROUND_COLOR),
+          appBackgroundImage: (currentBackground.type === 'imageURL' || currentBackground.type === 'imageData') ? currentBackground.value : "",
+        };
+        onSave(newSettings);
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+        return;
+      }
+    }
+    localStorage.setItem('pardusRunApiKey', trimmedApiKey);
     const newSettings: AppSettings = {
       defaultCity: defaultCity.trim() || DEFAULT_SETTINGS.defaultCity,
       backgroundStyle: currentBackground,
