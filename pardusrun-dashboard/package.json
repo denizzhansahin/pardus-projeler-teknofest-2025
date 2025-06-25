@@ -29,8 +29,6 @@
     "@types/node": "^22.14.0",
     "typescript": "~5.7.2",
     "vite": "^6.2.0",
-
-
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^4.3.1",
@@ -47,8 +45,7 @@
     "typescript-eslint": "^8.3.0",
     "wait-on": "^8.0.3"
   },
-
-      "build": {
+  "build": {
     "appId": "com.denizhan.pardusRun",
     "productName": "Pardus Run with Gemini",
     "files": [

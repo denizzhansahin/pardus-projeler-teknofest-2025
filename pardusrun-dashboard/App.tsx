@@ -124,6 +124,7 @@ const App: React.FC = () => {
         <div className="w-full max-w-4xl flex flex-col sm:flex-row items-center sm:items-start justify-center sm:gap-x-6 mb-6 sm:mb-8">
           <div className="flex-grow w-full sm:max-w-2xl">
             <CentralSearch 
+              onSearch={handleSearch}
               onOpenAIQuickResponse={() => setIsAIQuickResponseModalOpen(true)}
               apiKeyAvailable={!!userApiKey}
             />
