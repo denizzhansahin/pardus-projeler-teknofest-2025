@@ -1,8 +1,8 @@
-// @ts-nocheck
+
 import React, { useState } from 'react';
-import { Languages } from 'lucide-react';
 import WidgetCard from '../WidgetCard';
 import { WidgetSectionProps, TranslationResult } from '../../types';
+import { LanguageIcon } from '../icons/LanguageIcon';
 import { geminiService } from '../../services/geminiService';
 import LoadingSpinner from '../LoadingSpinner';
 import { SparklesIcon } from '../icons/SparklesIcon';
@@ -41,10 +41,10 @@ const AITranslatorWidget: React.FC<WidgetSectionProps> = ({ apiKeyAvailable }) =
   };
 
   return (
-    <WidgetCard title="AI Çevirmen" icon={<Languages className="w-6 h-6 text-sky-500" />}>
+    <WidgetCard title="AI Çevirmen" icon={<LanguageIcon className="w-6 h-6 text-sky-500" />}>
       {!apiKeyAvailable ? (
         <div className="flex flex-col items-center justify-center h-full text-center p-4">
-          <Languages className="w-12 h-12 mx-auto text-sky-300 mb-3" />
+          <LanguageIcon className="w-12 h-12 mx-auto text-sky-300 mb-3" />
           <p className="text-sm text-red-600">
             API Anahtarı (API_KEY) ayarlanmadığı için bu özellik kullanılamıyor.
           </p>
