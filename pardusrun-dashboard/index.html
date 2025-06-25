@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PardusRun Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: 'Inter var', sans-serif;
+        background-color: #f3f4f6; /* gray-100 - Light theme background */
+        color: #374151; /* gray-700 - Default dark text for light theme */
+      }
+      /* Custom scrollbar styling for webkit browsers - Light theme */
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #e5e7eb; /* gray-200 */
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #a78bfa; /* purple-400 */
+        border-radius: 5px;
+        border: 2px solid #e5e7eb; /* gray-200 - to give a little padding */
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #8b5cf6; /* purple-500 */
+      }
+      /* For Firefox - Light theme */
+      * {
+        scrollbar-width: auto; /* or thin */
+        scrollbar-color: #a78bfa #e5e7eb; /* thumb color track color */
+      }
+    </style>
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.6.0"
+  }
+}
+</script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter var', 'sans-serif'],
+          },
+          colors: {
+            // You can add custom theme colors here if needed
+            // For now, relying on default Tailwind palette + direct color usage.
+          }
+        }
+      }
+    }
+  </script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="text-gray-700"> {/* Default text color for the body */}
+    <main id="root" class="app-main-container"></main> {/* Changed div to main for semantics */}
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>

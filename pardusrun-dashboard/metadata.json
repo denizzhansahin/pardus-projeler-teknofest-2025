@@ -1,0 +1,5 @@
+{
+  "name": "PardusRun Dashboard",
+  "description": "A dynamic information hub providing quick access to popular sites, news, weather, music, games, and more, powered by Gemini API.",
+  "requestFramePermissions": ["geolocation"]
+}
