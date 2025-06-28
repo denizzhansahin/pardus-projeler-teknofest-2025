@@ -7,11 +7,14 @@ import Terminal from './components/Terminal';
 import SettingsModal from './components/SettingsModal';
 import SettingsIcon from './components/icons/SettingsIcon';
 import FolderIcon from './components/icons/FolderIcon';
+import ApiKeyModal from './components/ApiKeyModal';
 
 const App: React.FC = () => {
   const [model, setModel] = useState<Model>(Model.GEMINI_FLASH);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isApiKeyModalOpen, setApiKeyModalOpen] = useState(false);
+  const [apiKey, setApiKey] = useState<string | null>(null);
   
   const { 
     rootNode, 
@@ -138,6 +141,19 @@ const App: React.FC = () => {
 
   }, [messages, executeCommand]);
 
+  useEffect(() => {
+    const storedKey = localStorage.getItem('API_KEY');
+    if (!storedKey) {
+      setApiKeyModalOpen(true);
+    } else {
+      setApiKey(storedKey);
+    }
+  }, []);
+
+  const handleApiKeySave = (key: string) => {
+    setApiKey(key);
+  };
+
   if (!isReady) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-gray-900 text-gray-100">
@@ -162,59 +178,66 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="flex h-screen font-sans bg-gray-900 text-gray-100">
-      <div className="w-1/3 max-w-md bg-gray-900 border-r border-gray-700 p-4 flex flex-col">
-        <h2 className="text-lg font-bold mb-4 text-cyan-400">Dosya Sistemi</h2>
-        <div className="flex-grow overflow-y-auto pr-2">
-          {rootNode && <FileSystemTree node={rootNode} />}
-        </div>
-        <div className="mt-4 p-2 bg-gray-800 rounded-md text-sm">
-          <p className="text-gray-400">Geçerli Yol:</p>
-          <p className="text-green-400 font-mono break-words">{getPathString()}</p>
-        </div>
-      </div>
-
-      <div className="flex-1 flex flex-col h-screen">
-        <header className="flex justify-between items-center p-4 bg-gray-800 border-b border-gray-700">
-          <h1 className="text-xl font-bold text-white">
-            Yapay Zeka Yerel Shell Aracı
-          </h1>
-          <div className="flex items-center space-x-2">
-            <span className="text-sm px-2 py-1 bg-cyan-900/50 text-cyan-300 rounded-md">{model}</span>
-            <button
-              onClick={() => setIsSettingsOpen(true)}
-              className="p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-              aria-label="Ayarlar"
-            >
-              <SettingsIcon />
-            </button>
+    <>
+      <ApiKeyModal
+        isOpen={isApiKeyModalOpen}
+        onClose={() => setApiKeyModalOpen(false)}
+        onSave={handleApiKeySave}
+      />
+      <div className="flex h-screen font-sans bg-gray-900 text-gray-100">
+        <div className="w-1/3 max-w-md bg-gray-900 border-r border-gray-700 p-4 flex flex-col">
+          <h2 className="text-lg font-bold mb-4 text-cyan-400">Dosya Sistemi</h2>
+          <div className="flex-grow overflow-y-auto pr-2">
+            {rootNode && <FileSystemTree node={rootNode} />}
           </div>
-        </header>
+          <div className="mt-4 p-2 bg-gray-800 rounded-md text-sm">
+            <p className="text-gray-400">Geçerli Yol:</p>
+            <p className="text-green-400 font-mono break-words">{getPathString()}</p>
+          </div>
+        </div>
 
-        <Terminal
-          messages={messages}
-          isLoading={isLoading}
-          isAwaitingConfirmation={isAwaitingConfirmation}
-          onSendMessage={handleSendMessage}
-          onConfirm={handleConfirmation}
-          terminalBodyRef={terminalBodyRef}
-        />
-        
-        <footer className="p-2 text-center text-xs text-gray-500 bg-gray-800 border-t border-gray-700">
-          <p>
-            <span className="font-bold text-red-500">UYARI:</span> Komutlar, yerel makinenizde seçilen dizin içinde ÇALIŞTIRILIR. Onaylamadan önce önerilen eylemleri daima gözden geçirin.
-          </p>
-        </footer>
+        <div className="flex-1 flex flex-col h-screen">
+          <header className="flex justify-between items-center p-4 bg-gray-800 border-b border-gray-700">
+            <h1 className="text-xl font-bold text-white">
+              Yapay Zeka Yerel Shell Aracı
+            </h1>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm px-2 py-1 bg-cyan-900/50 text-cyan-300 rounded-md">{model}</span>
+              <button
+                onClick={() => setIsSettingsOpen(true)}
+                className="p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                aria-label="Ayarlar"
+              >
+                <SettingsIcon />
+              </button>
+            </div>
+          </header>
+
+          <Terminal
+            messages={messages}
+            isLoading={isLoading}
+            isAwaitingConfirmation={isAwaitingConfirmation}
+            onSendMessage={handleSendMessage}
+            onConfirm={handleConfirmation}
+            terminalBodyRef={terminalBodyRef}
+          />
+          
+          <footer className="p-2 text-center text-xs text-gray-500 bg-gray-800 border-t border-gray-700">
+            <p>
+              <span className="font-bold text-red-500">UYARI:</span> Komutlar, yerel makinenizde seçilen dizin içinde ÇALIŞTIRILIR. Onaylamadan önce önerilen eylemleri daima gözden geçirin.
+            </p>
+          </footer>
+        </div>
+
+        {isSettingsOpen && (
+          <SettingsModal
+            currentModel={model}
+            onModelChange={setModel}
+            onClose={() => setIsSettingsOpen(false)}
+          />
+        )}
       </div>
-
-      {isSettingsOpen && (
-        <SettingsModal
-          currentModel={model}
-          onModelChange={setModel}
-          onClose={() => setIsSettingsOpen(false)}
-        />
-      )}
-    </div>
+    </>
   );
 };
 
