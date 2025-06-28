@@ -3,16 +3,25 @@ import { GroundingSource } from "../types";
 
 // API anahtarı önce localStorage'dan, yoksa env'den alınır
 function getGeminiApiKey(): string | undefined {
+  let localKey;
   if (typeof window !== 'undefined') {
-    const localKey = localStorage.getItem('geminiApiKey');
+    localKey = localStorage.getItem('geminiApiKey');
+    console.log('[GeminiService] localStorage geminiApiKey:', localKey);
     if (localKey && localKey.trim().length > 0) return localKey.trim();
   }
+  let viteKey;
   if (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.VITE_API_KEY) {
-    return (import.meta as any).env.VITE_API_KEY;
+    viteKey = (import.meta as any).env.VITE_API_KEY;
+    console.log('[GeminiService] import.meta.env.VITE_API_KEY:', viteKey);
+    return viteKey;
   }
+  let processKey;
   if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
-    return process.env.API_KEY;
+    processKey = process.env.API_KEY;
+    console.log('[GeminiService] process.env.API_KEY:', processKey);
+    return processKey;
   }
+  console.warn('[GeminiService] API anahtarı bulunamadı!');
   return undefined;
 }
 
@@ -42,9 +51,12 @@ export const generateContent = async ({
   audioMimeType,
   useGoogleSearch = false,
 }: GenerateContentParams): Promise<GenerateContentResult> => {
+  console.log('[GeminiService] generateContent çağrıldı, prompt:', prompt);
   try {
     const apiKey = getGeminiApiKey();
+    console.log('[GeminiService] generateContent apiKey:', apiKey);
     if (!apiKey) {
+      console.error('[GeminiService] generateContent: API anahtarı bulunamadı!');
       return { text: null, error: "Gemini API anahtarı bulunamadı." };
     }
     const ai = new GoogleGenAI({ apiKey });
