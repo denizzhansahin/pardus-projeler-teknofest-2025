@@ -104,7 +104,9 @@ const App: React.FC = () => {
         setMessages(prev => [...prev.map(m => m.id === messageId ? { ...m, isConfirmed: confirmed } : m), ...systemMessages]);
 
         let allSucceeded = true;
-        for (const cmd of messageToConfirm.aiResponse.commands) {
+        // Sadece komut içeren AI yanıtlarında döngüye gir
+        if (messageToConfirm.aiResponse && 'commands' in messageToConfirm.aiResponse && Array.isArray(messageToConfirm.aiResponse.commands)) {
+          for (const cmd of messageToConfirm.aiResponse.commands) {
             const result = await executeCommand(cmd);
             const resultMessage: Message = {
                  id: `sys-res-${Date.now()}-${Math.random()}`,
@@ -115,6 +117,7 @@ const App: React.FC = () => {
             if (!result.success) {
                 allSucceeded = false;
             }
+          }
         }
         
         const finalText = allSucceeded ? 'Tüm komutlar başarıyla çalıştırıldı.' : 'Bazı komutlar başarısız oldu. Lütfen çıktıyı inceleyin.';
