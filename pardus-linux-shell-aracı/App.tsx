@@ -155,6 +155,7 @@ const App: React.FC = () => {
   };
 
   if (!isReady) {
+    console.log('isReady:', isReady, 'rootNode:', rootNode, 'currentPath:', currentPath);
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-gray-900 text-gray-100">
         <div className="text-center p-8 border-2 border-dashed border-gray-600 rounded-lg">
