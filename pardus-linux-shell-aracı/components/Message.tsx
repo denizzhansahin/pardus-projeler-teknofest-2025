@@ -32,13 +32,14 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onConfirm }) => 
 
   const renderAIResponse = (response: typeof message.aiResponse) => {
     if (!response) return null;
+    // Güvenli şekilde message.text.replace kullanımı
+    const safeText = typeof message.text === 'string' ? message.text : '';
     return (
       <div className="mt-2 p-3 bg-gray-800/50 border border-gray-700 rounded-lg text-sm">
         <p className="text-gray-400 italic mb-2">
             <span className="font-bold">Düşünce: </span>{response.thought}
         </p>
-        <div className="prose prose-invert prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: message.text.replace(/\n/g, '<br/>') }} />
-        
+        <div className="prose prose-invert prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: safeText.replace(/\n/g, '<br/>') }} />
         {response.commands && response.commands.length > 0 && (
           <div className="mt-3">
             <h4 className="font-semibold text-gray-300 mb-1">Önerilen Komutlar:</h4>
@@ -55,7 +56,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onConfirm }) => 
             })}
           </div>
         )}
-
         {message.isConfirmed === null && onConfirm && (
             <div className="mt-4 pt-3 border-t border-gray-700 flex items-center justify-end space-x-3">
                 <p className="text-sm text-yellow-300 mr-auto">Bu komutları çalıştırmak istiyor musunuz?</p>

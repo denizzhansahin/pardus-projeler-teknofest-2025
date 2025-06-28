@@ -36,8 +36,21 @@ export interface AICommand {
   operation?: 'create' | 'update' | 'delete'; // for file_op
 }
 
-export interface AIResponse {
-  thought: string;
-  commands: AICommand[];
-  explanation: string;
-}
+export type AIResponse = 
+  | {
+      type: 'json';
+      thought: string;
+      commands: AICommand[];
+      explanation: string;
+      raw?: string;
+    }
+  | {
+      type: 'python';
+      code: string;
+      raw?: string;
+    }
+  | {
+      type: 'text';
+      text: string;
+      raw?: string;
+    };
