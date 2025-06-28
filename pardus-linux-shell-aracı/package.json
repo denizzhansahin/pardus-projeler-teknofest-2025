@@ -1,21 +1,87 @@
 {
-  "name": "yapay-zeka-linux-shell-aracı",
+  "name": "pardus-linux-shell",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "description": "Pardus - Electron",
+  "main": "electron.cjs",
+  "homepage": "https://github.com/denizzhansahin/pardus-projeler-teknofest-2025",
+  "author": {
+    "name": "Denizhan Şahin - Space Teknopoli",
+    "email": "mailimyoktursakinyazma@mailimyoktursakinyazma.com"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
+    "electron:build": "npm run build && electron-builder",
+    "electron:build-win": "npm run build && electron-builder --win --x64",
+    "electron:build-linux": "npm run build && electron-builder --linux --x64"
   },
   "dependencies": {
     "react-dom": "^19.1.0",
     "react": "^19.1.0",
-    "@google/genai": "^1.7.0"
+    "@google/genai": "^1.7.0",
+    "axios": "^1.8.4",
+    "react-router-dom": "^7.4.1",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
     "typescript": "~5.7.2",
-    "vite": "^6.2.0"
+    "vite": "^6.2.0",
+    "@eslint/js": "^9.9.1",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.21",
+    "concurrently": "^9.1.2",
+    "electron": "^35.1.2",
+    "electron-builder": "^26.0.12",
+    "eslint": "^9.9.1",
+    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "eslint-plugin-react-refresh": "^0.4.11",
+    "globals": "^15.9.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "typescript-eslint": "^8.3.0",
+    "wait-on": "^8.0.3"
+  },
+
+    "build": {
+    "appId": "com.denizhan.pardusLinuxShell",
+    "productName": "Pardus Linux Shell with Gemini",
+    "files": [
+      "dist/**/*",
+      "electron.cjs",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "assets",
+      "output": "release"
+    },
+    "win": {
+      "target": [
+        "portable",
+        "msi"
+      ],
+      "icon": "assets/Pardus-Logo.ico"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "assets/Pardus-Logo.png",
+      "category": "Utility"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "assets/Pardus-Logo.icns"
+    }
   }
 }
