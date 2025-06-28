@@ -79,7 +79,6 @@ export const useLocalFS = () => {
       const tree = await scanDirectory(handle);
       setRootNode(tree);
       setIsReady(true);
-      console.log("Dizin seçildi, isReady true olacak");
     } catch (err) {
       console.error("Kullanıcı dizin seçimini iptal etti veya bir hata oluştu:", err);
       setIsReady(false);
