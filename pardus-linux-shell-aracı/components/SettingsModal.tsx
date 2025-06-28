@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Model } from '../types';
 
@@ -40,18 +41,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ currentModel, onModelChan
           
           <div className="pt-4 border-t border-gray-700">
              <h3 className="text-md font-semibold text-gray-200">API Anahtarı</h3>
-             <input
-                type="text"
-                className="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 mt-2"
-                value={localStorage.getItem('API_KEY') || ''}
-                onChange={e => {
-                  localStorage.setItem('API_KEY', e.target.value);
-                  window.location.reload(); // Anahtarı değiştirdikten sonra uygulamayı yenile
-                }}
-                placeholder="Google AI API Key"
-              />
              <p className="text-xs text-gray-400 mt-2 bg-gray-700/50 p-2 rounded-md">
-                Google AI API Anahtarınızı buradan değiştirebilirsiniz. Değişiklikten sonra uygulama otomatik olarak yenilenecektir.
+                Google AI API Anahtarınız bir ortam değişkeni aracılığıyla güvenli bir şekilde yapılandırılmıştır ve buradan erişilemez.
              </p>
           </div>
 
