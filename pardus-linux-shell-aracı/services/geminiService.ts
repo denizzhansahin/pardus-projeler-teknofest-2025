@@ -37,10 +37,19 @@ CEVAP FORMATIN:
 // ÖRNEK CEVAP: Kodun başında '''Plan: ... Kod Açıklaması: ...''' bloğu ve ardından Python kodu olacak şekilde tek bir python kod bloğu döndür.
 `;
 
+// Python kod bloğu çıkarıcı yardımcı fonksiyon
+function extractPythonCodeBlock(text: string): string | null {
+  const pythonBlock = text.match(/```python\s*([\s\S]*?)```/i);
+  if (pythonBlock && pythonBlock[1]) {
+    return pythonBlock[1].trim();
+  }
+  return null;
+}
+
 export const generateResponse = async (
   model: Model,
   prompt: string,
-  history: Message[],
+  _history: Message[], // kullanılmıyor, alt çizgi ile işaretlendi
   vfsState: string,
   currentPath: string
 ): Promise<AIResponse> => {
@@ -59,15 +68,41 @@ export const generateResponse = async (
       },
     });
 
-    const responseText = result.text.trim();
-    
-    // The AI might still wrap the JSON in markdown fences.
-    const fenceRegex = /^```(\w*)?\s*\n?(.*?)\n?\s*```$/s;
-    const match = responseText.match(fenceRegex);
-    const jsonStr = match && match[2] ? match[2].trim() : responseText;
-    
-    const parsedData = JSON.parse(jsonStr);
-    return parsedData as AIResponse;
+    const responseText = result.text?.trim() ?? '';
+
+    // 1. JSON olarak ayrıştırmayı dene
+    try {
+      // Bazı durumlarda yanıt markdown fence ile gelebilir
+      const fenceRegex = /^```(json)?\s*\n?([\s\S]*?)\n?\s*```$/i;
+      const match = responseText.match(fenceRegex);
+      const jsonStr = match && match[2] ? match[2].trim() : responseText;
+      const parsedData = JSON.parse(jsonStr);
+      return parsedData as AIResponse;
+    } catch (jsonErr) {
+      // JSON değilse devam et
+    }
+
+    // 2. Python kod bloğu varsa çıkar
+    const pythonCode = extractPythonCodeBlock(responseText);
+    if (pythonCode) {
+      return {
+        type: 'python',
+        code: pythonCode,
+        raw: responseText
+      };
+    }
+
+    // 3. Düz metin ise döndür
+    if (responseText.length > 0) {
+      return {
+        type: 'text',
+        text: responseText,
+        raw: responseText
+      };
+    }
+
+    // 4. Hiçbiri değilse hata
+    throw new Error('Yapay zeka yanıtı beklenen formatta değil.');
 
   } catch (error) {
     console.error("Gemini API çağrısı başarısız oldu:", error);
@@ -77,7 +112,7 @@ export const generateResponse = async (
         const anyError = error as any;
         if(anyError.response && anyError.response.text) {
             rawResponse = anyError.response.text;
-        } else if (anyError.message.includes('JSON')) {
+        } else if (anyError.message && anyError.message.includes('JSON')) {
             // If it's a JSON parse error, the raw text is likely what we tried to parse
             rawResponse = (error.message.split('Raw response: "')[1] || '').slice(0, -1);
         }

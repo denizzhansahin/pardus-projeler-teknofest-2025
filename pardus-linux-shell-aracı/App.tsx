@@ -155,7 +155,6 @@ const App: React.FC = () => {
   };
 
   if (!isReady) {
-    console.log('isReady:', isReady, 'rootNode:', rootNode, 'currentPath:', currentPath);
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-gray-900 text-gray-100">
         <div className="text-center p-8 border-2 border-dashed border-gray-600 rounded-lg">
@@ -171,7 +170,9 @@ const App: React.FC = () => {
             </span>
           </button>
           <p className="text-xs text-yellow-400 mt-8 max-w-md mx-auto">
-            <span className="font-bold">Güvenlik Notu:</span> Uygulama yalnızca seçtiğiniz dizine erişebilir. Açık onayınız olmadan hiçbir işlem gerçekleştirilmeyecektir.
+            <span className="font-bold">Güvenlik Notu:</span> Uygulama yalnızca seçtiğiniz dizine erişebilir. <br/>
+            <span className="font-bold">Dikkat:</span> Eğer Masaüstü, Belgeler veya sistemdeki başka bir klasörü açmak istiyorsanız, dosya seçici penceresinde ilgili dizine gidip o klasörü manuel olarak seçmelisiniz. <br/>
+            <span className="font-bold">Not:</span> Bazı sistem dizinleri (ör. /, /etc, /usr) güvenlik nedeniyle erişilemez. En geniş erişim için ev dizininizi veya Masaüstü klasörünüzü seçin.
           </p>
         </div>
       </div>
