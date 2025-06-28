@@ -105,34 +105,6 @@ multimodal-ai-chatbot-gemini/.DS_Store
 multimodal-ai-chatbot-gemini/.vscode/
 multimodal-ai-chatbot-gemini/.idea/
 
-multimodal-ai-chatbot-gemini/npm-debug.log*
-multimodal-ai-chatbot-gemini/yarn-debug.log*
-multimodal-ai-chatbot-gemini/yarn-error.log*
-multimodal-ai-chatbot-gemini/*.zip
-multimodal-ai-chatbot-gemini/*.tar
-multimodal-ai-chatbot-gemini/*.tar.gz
-multimodal-ai-chatbot-gemini/*.tgz
-multimodal-ai-chatbot-gemini/*.bak
-multimodal-ai-chatbot-gemini/*.tmp
-multimodal-ai-chatbot-gemini/*.cache
-multimodal-ai-chatbot-gemini/*.pyc
-multimodal-ai-chatbot-gemini/__pycache__/
-multimodal-ai-chatbot-gemini/*.asar
-multimodal-ai-chatbot-gemini/*.dmg
-multimodal-ai-chatbot-gemini/*.exe
-multimodal-ai-chatbot-gemini/*.app
-multimodal-ai-chatbot-gemini/*.blockmap
-multimodal-ai-chatbot-gemini/*.pkg
-multimodal-ai-chatbot-gemini/*.deb
-multimodal-ai-chatbot-gemini/*.rpm
-multimodal-ai-chatbot-gemini/*.snap
-multimodal-ai-chatbot-gemini/*.msi
-multimodal-ai-chatbot-gemini/*.dll
-multimodal-ai-chatbot-gemini/*.so
-multimodal-ai-chatbot-gemini/*.pdb
-multimodal-ai-chatbot-gemini/*.icns
-multimodal-ai-chatbot-gemini/*.ico
-multimodal-ai-chatbot-gemini/*.test-results
-multimodal-ai-chatbot-gemini/Thumbs.db
+
 
 
