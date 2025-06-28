@@ -97,7 +97,7 @@ const App: React.FC = () => {
     let systemMessages: Message[] = [];
     if (confirmed) {
         systemMessages.push({
-            id: `sys-exec-${Date.now()}-${Math.random()}`,
+            id: uniqueId('sys-exec'),
             type: MessageType.SYSTEM,
             text: "Komutlar çalıştırılıyor..."
         });
@@ -109,7 +109,7 @@ const App: React.FC = () => {
           for (const cmd of messageToConfirm.aiResponse.commands) {
             const result = await executeCommand(cmd);
             const resultMessage: Message = {
-                 id: `sys-res-${Date.now()}-${Math.random()}`,
+                 id: uniqueId('sys-res'),
                  type: result.success ? MessageType.SYSTEM : MessageType.ERROR,
                  text: result.output || (result.success ? "Komut çalıştırıldı." : "Komut başarısız oldu.")
             };
@@ -122,14 +122,14 @@ const App: React.FC = () => {
         
         const finalText = allSucceeded ? 'Tüm komutlar başarıyla çalıştırıldı.' : 'Bazı komutlar başarısız oldu. Lütfen çıktıyı inceleyin.';
         systemMessages.push({
-            id: `sys-final-${Date.now()}-${Math.random()}`,
+            id: uniqueId('sys-final'),
             type: allSucceeded ? MessageType.SYSTEM : MessageType.ERROR,
             text: finalText
         });
 
     } else {
         systemMessages.push({
-            id: `sys-cancel-${Date.now()}-${Math.random()}`,
+            id: uniqueId('sys-cancel'),
             type: MessageType.SYSTEM,
             text: 'İşlem kullanıcı tarafından iptal edildi.'
         });
@@ -245,5 +245,10 @@ const App: React.FC = () => {
     </>
   );
 };
+
+// Güvenli, çakışmasız id üretici
+function uniqueId(prefix: string) {
+  return `${prefix}-${Date.now()}-${Math.random()}-${Math.random()}`;
+}
 
 export default App;
