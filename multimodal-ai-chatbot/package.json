@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Pardus - Electron",
   "main": "electron.cjs",
+  "homepage": "https://github.com/denizzhansahin/pardus-projeler-teknofest-2025",
   "author": {
     "name": "Denizhan Şahin - Space Teknopoli",
     "email": "mailimyoktursakinyazma@mailimyoktursakinyazma.com"
