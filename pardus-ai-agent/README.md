@@ -1,6 +1,6 @@
 # Pardus AI Asistanı
 
-![Pardus Logo](https://www.pardus.org.tr/wp-content/uploads/2022/03/Pardus-logo-Beyaz-yazi.png)
+![Pardus Logo](https://pardus.org.tr/wp-content/uploads/2019/08/Pardus-04.png)
 
 **Pardus AI Asistanı**, milli işletim sistemimiz Pardus için özel olarak geliştirilmiş, Google Gemini 1.5 destekli, akıllı bir komut satırı asistanıdır. Amacı, geliştirme ve sistem yönetimi görevlerini basitleştirmek, otomatize etmek ve Pardus kullanıcılarına güçlü bir AI yardımcısı sunmaktır.
 
