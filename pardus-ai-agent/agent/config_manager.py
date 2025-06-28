@@ -75,7 +75,7 @@ def prompt_for_config() -> dict:
     # Gemini API'sinin en son modellerini kullanmak için 'latest' takısını ekliyoruz.
     # Bu, Google yeni bir sürüm çıkardığında kodumuzu değiştirmeden en güncel modeli
     # kullanmamızı sağlar.
-    model_name = "models/gemini-2.5-flash-latest" if model_choice == "1" else "models/gemini-2.5-pro-latest"
+    model_name = "models/gemini-2.5-flash" if model_choice == "1" else "models/gemini-2.5-pro"
 
     
     # Alınan bilgileri kaydetmek için save_config fonksiyonunu çağır.
