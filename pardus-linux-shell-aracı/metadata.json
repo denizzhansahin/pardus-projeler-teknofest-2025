@@ -1,0 +1,6 @@
+{
+  "name": "Yapay Zeka Linux Shell Aracı",
+  "description": "Yerel dosya sisteminizle doğrudan etkileşime giren yapay zeka destekli bir aracı. Doğal dil kullanarak, kullanıcı tarafından seçilen bir dizinde dosya işlemlerini güvenli ve verimli bir şekilde gerçekleştirin, kod üretin ve projeleri yönetin.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
