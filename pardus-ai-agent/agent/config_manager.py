@@ -64,8 +64,8 @@ def prompt_for_config() -> dict:
     api_key = getpass("Lütfen Google AI API Anahtarınızı girin: ")
     
     print("\nHangi Gemini modelini kullanmak istersiniz?")
-    print("1: Gemini 1.5 Flash (Daha hızlı ve günlük görevler için ideal)")
-    print("2: Gemini 1.5 Pro (Daha güçlü ve karmaşık görevler için)")
+    print("1: Gemini 2.5 Flash (Daha hızlı ve günlük görevler için ideal)")
+    print("2: Gemini 2.5 Pro - Bu model çalışmayabilir -  (Daha güçlü ve karmaşık görevler için)")
     
     model_choice = ""
     # Kullanıcı 1 veya 2 dışında bir şey girerse, tekrar sor.
@@ -75,7 +75,8 @@ def prompt_for_config() -> dict:
     # Gemini API'sinin en son modellerini kullanmak için 'latest' takısını ekliyoruz.
     # Bu, Google yeni bir sürüm çıkardığında kodumuzu değiştirmeden en güncel modeli
     # kullanmamızı sağlar.
-    model_name = "models/gemini-1.5-flash-latest" if model_choice == "1" else "models/gemini-1.5-pro-latest"
+    model_name = "models/gemini-2.5-flash-latest" if model_choice == "1" else "models/gemini-2.5-pro-latest"
+
     
     # Alınan bilgileri kaydetmek için save_config fonksiyonunu çağır.
     return save_config(api_key, model_name)
