@@ -97,7 +97,7 @@ const App: React.FC = () => {
     let systemMessages: Message[] = [];
     if (confirmed) {
         systemMessages.push({
-            id: `sys-exec-${Date.now()}`,
+            id: `sys-exec-${Date.now()}-${Math.random()}`,
             type: MessageType.SYSTEM,
             text: "Komutlar çalıştırılıyor..."
         });
@@ -122,14 +122,14 @@ const App: React.FC = () => {
         
         const finalText = allSucceeded ? 'Tüm komutlar başarıyla çalıştırıldı.' : 'Bazı komutlar başarısız oldu. Lütfen çıktıyı inceleyin.';
         systemMessages.push({
-            id: `sys-final-${Date.now()}`,
+            id: `sys-final-${Date.now()}-${Math.random()}`,
             type: allSucceeded ? MessageType.SYSTEM : MessageType.ERROR,
             text: finalText
         });
 
     } else {
         systemMessages.push({
-            id: `sys-cancel-${Date.now()}`,
+            id: `sys-cancel-${Date.now()}-${Math.random()}`,
             type: MessageType.SYSTEM,
             text: 'İşlem kullanıcı tarafından iptal edildi.'
         });
