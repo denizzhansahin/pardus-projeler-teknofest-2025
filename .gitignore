@@ -105,7 +105,7 @@ multimodal-ai-chatbot-gemini/coverage/
 multimodal-ai-chatbot-gemini/.DS_Store
 multimodal-ai-chatbot-gemini/.vscode/
 multimodal-ai-chatbot-gemini/.idea/
-multimodal-ai-chatbot-gemini/*.log
+
 multimodal-ai-chatbot-gemini/npm-debug.log*
 multimodal-ai-chatbot-gemini/yarn-debug.log*
 multimodal-ai-chatbot-gemini/yarn-error.log*
