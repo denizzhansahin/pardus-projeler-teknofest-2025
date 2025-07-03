@@ -1,0 +1,46 @@
+// This file re-exports Lucide icons for use in the app, matching the previous icon names.
+import {
+  FileText as TextIcon,
+  Image as ImageIcon,
+  Download as DownloadIcon,
+  Bot as BotIcon,
+  User as UserIcon,
+  Loader as LoaderIcon,
+  Pencil as PencilIcon,
+  Wand2 as WandIcon,
+  Bold as BoldIcon,
+  Italic as ItalicIcon,
+  Underline as UnderlineIcon,
+  AlignLeft as AlignLeftIcon,
+  AlignCenter as AlignCenterIcon,
+  AlignRight as AlignRightIcon,
+  BringToFront as BringToFrontIcon,
+  SendToBack as SendToBackIcon,
+  Trash2 as TrashIcon,
+  Home as HomeIcon,
+  FilePlus as NewFileIcon,
+  Settings as CogIcon
+} from 'lucide-react';
+
+export {
+  TextIcon,
+  ImageIcon,
+  DownloadIcon,
+  BotIcon,
+  UserIcon,
+  LoaderIcon,
+  PencilIcon,
+  WandIcon,
+  BoldIcon,
+  ItalicIcon,
+  UnderlineIcon,
+  AlignLeftIcon,
+  AlignCenterIcon,
+  AlignRightIcon,
+  BringToFrontIcon,
+  SendToBackIcon,
+  TrashIcon,
+  HomeIcon,
+  NewFileIcon,
+  CogIcon
+};
