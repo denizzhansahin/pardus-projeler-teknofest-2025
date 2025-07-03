@@ -81,7 +81,7 @@ export const getKeywordsForImageSearch = async (image: Blob): Promise<string> =>
             model: "gemini-2.5-flash-preview-04-17",
             contents: { parts: [imagePart, {text: prompt}] }
         });
-        return response.text.trim();
+        return response.text?.trim() || '';
      } catch (e) {
         console.error("Gemini API getKeywordsForImageSearch hatası:", e);
         throw new Error("Görsel arama için anahtar kelimeler alınamadı.");
@@ -93,6 +93,9 @@ export const getKeywordsForImageSearch = async (image: Blob): Promise<string> =>
  * Medya öğeleri listesinden anılar önerir
  */
 export const suggestMemories = async (items: MediaItem[]): Promise<Omit<Memory, 'id'>[]> => {
+    const apiKey = getUserApiKey();
+    if (!apiKey) throw new Error('API anahtarı girilmedi.');
+    const ai = new GoogleGenAI({ apiKey });
     const analyzedItems = items.filter(item => item.analyzed && item.tags && item.tags.length > 0);
     if (analyzedItems.length < 3) {
         return []; // Bir anı oluşturmak için yeterli veri yok
@@ -116,7 +119,7 @@ export const suggestMemories = async (items: MediaItem[]): Promise<Omit<Memory, 
             }
         });
 
-        let jsonStr = response.text.trim();
+        let jsonStr = response.text?.trim() || '';
         const fenceRegex = /^```(\w*)?\s*\n?(.*?)\n?\s*```$/s;
         const match = jsonStr.match(fenceRegex);
         if (match && match[2]) {
@@ -151,7 +154,7 @@ export const getDailyHighlight = async (items: MediaItem[]): Promise<DailyHighli
             contents: prompt,
             config: { responseMimeType: "application/json" }
         });
-        let jsonStr = response.text.trim();
+        let jsonStr = response.text?.trim() || '';
         const fenceRegex = /^```(\w*)?\s*\n?(.*?)\n?\s*```$/s;
         const match = jsonStr.match(fenceRegex);
         if (match && match[2]) {
@@ -183,7 +186,7 @@ export const getMoreInfo = async (image: Blob): Promise<MoreInfoResult | null> =
             contents: { parts: [imagePart, { text: prompt }] },
             config: { responseMimeType: "application/json" }
         });
-        let jsonStr = response.text.trim();
+        let jsonStr = response.text?.trim() || '';
         const fenceRegex = /^```(\w*)?\s*\n?(.*?)\n?\s*```$/s;
         const match = jsonStr.match(fenceRegex);
         if (match && match[2]) {
@@ -248,7 +251,7 @@ export const chatWithAI = async (
             }
         });
 
-        let jsonStr = response.text.trim();
+        let jsonStr = response.text?.trim() || '';
         const fenceRegex = /^```(\w*)?\s*\n?(.*?)\n?\s*```$/s;
         const match = jsonStr.match(fenceRegex);
         if (match && match[2]) {
