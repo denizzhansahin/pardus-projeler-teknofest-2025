@@ -1,0 +1,6 @@
+{
+  "name": "Pardus Hızlı Klavye",
+  "description": "Kullanıcıların yazma becerilerini geliştirmelerini sağlayan bir uygulama. Kullanıcılar yapay zeka ile herhangi bir konuda metin oluşturabilir, özel metinlerle pratik yapabilir, zamana karşı yarışabilir ve yapay zeka destekli geri bildirim alabilirler. Bir alıştırma modu içerir ve kullanıcı geçmişini takip eder.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
