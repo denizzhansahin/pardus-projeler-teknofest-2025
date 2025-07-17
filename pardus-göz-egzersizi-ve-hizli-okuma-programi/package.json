@@ -1,0 +1,77 @@
+{
+  "name": "pardus-hizli-okuma",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Pardus - Electron",
+  "main": "electron.cjs",
+  "homepage": "https://github.com/denizzhansahin/pardus-projeler-teknofest-2025",
+  "author": {
+    "name": "Denizhan Şahin - Space Teknopoli Hızlı Klavye",
+    "email": "mailimyoktursakinyazma@mailimyoktursakinyazma.com"
+  },
+    "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
+    "electron:build": "npm run build && electron-builder",
+    "electron:build-win": "npm run build && electron-builder --win --x64",
+    "electron:build-linux": "npm run build && electron-builder --linux --x64",
+    "electron:build-mac-intel": "npm run build && electron-builder --mac --x64"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "@google/genai": "^1.9.0",
+    "epubjs": "0.3.93"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "typescript": "~5.7.2",
+    "vite": "^6.2.0",
+
+    "autoprefixer": "^10.4.21",
+    "concurrently": "^9.1.2",
+    "electron": "^35.1.2",
+    "electron-builder": "^26.0.12",
+
+    "wait-on": "^8.0.3"
+  },
+    "build": {
+    "appId": "com.denizhan.pardusHizliOkuma",
+    "productName": "Pardus Hızlı Okuma ve Göz Egzersizi",
+    "files": [
+      "dist/**/*",
+      "electron.cjs",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "assets",
+      "output": "release"
+    },
+    "win": {
+      "target": [
+        "portable",
+        "msi"
+      ],
+      "icon": "assets/Pardus-Logo-512.ico"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "assets/Pardus-Logo-512.png",
+      "category": "Utility"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "assets/Pardus-Logo-512.icns",
+      "arch": [ "arm64", "x64" ]
+    }
+  }
+}
