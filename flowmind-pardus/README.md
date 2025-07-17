@@ -1,6 +1,6 @@
 # Pardus Flowmind with Gemini
 
-![Proje Logosu](assets/Pardus-Logo.png)
+![Proje Logosu](a./flowmind-pardus/ssets/Pardus-Logo.png)
 
 Pardus Flowmind, düşüncelerinizi ve süreçlerinizi organize etmek için tasarlanmış, yapay zeka destekli bir zihin haritası ve akış diyagramı oluşturma aracıdır. Google Gemini API'nin gücünü sezgisel bir diyagram arayüzüyle birleştirerek yaratıcı süreçlerinizi bir üst seviyeye taşır.
 
