@@ -1,0 +1,31 @@
+--- STDOUT (Standart Çıktı) ---
+'pardus_txt' klasörü oluşturuluyor...
+✅ 'pardus_txt' klasörü başarıyla oluşturuldu veya zaten mevcut.
+
+'pardus_txt' klasörüne TXT dosyaları ekleniyor...
+  - 'Galatasaray.txt' dosyası oluşturuldu.
+  - 'Fenerbahçe.txt' dosyası oluşturuldu.
+  - 'Beşiktaş.txt' dosyası oluşturuldu.
+  - 'Trabzonspor.txt' dosyası oluşturuldu.
+  - 'Başakşehir.txt' dosyası oluşturuldu.
+  - 'Adana_Demirspor.txt' dosyası oluşturuldu.
+  - 'Konyaspor.txt' dosyası oluşturuldu.
+  - 'Antalyaspor.txt' dosyası oluşturuldu.
+  - 'Kayserispor.txt' dosyası oluşturuldu.
+  - 'Sivasspor.txt' dosyası oluşturuldu.
+  - 'Alanyaspor.txt' dosyası oluşturuldu.
+  - 'Hatayspor.txt' dosyası oluşturuldu.
+  - 'Gaziantep_FK.txt' dosyası oluşturuldu.
+  - 'Ankaragücü.txt' dosyası oluşturuldu.
+  - 'İstanbulspor.txt' dosyası oluşturuldu.
+  - 'Ümraniyespor.txt' dosyası oluşturuldu.
+  - 'Fatih_Karagümrük.txt' dosyası oluşturuldu.
+  - 'Samsunspor.txt' dosyası oluşturuldu.
+  - 'Çaykur_Rizespor.txt' dosyası oluşturuldu.
+  - 'Pendikspor.txt' dosyası oluşturuldu.
+
+✅ Tüm 20 adet TXT dosyası 'pardus_txt' klasörüne başarıyla eklendi.
+Dosyaları listelemek için: 'ls pardus_txt' komutunu kullanabilirsiniz.
+
+
+--- STDERR (Hata Çıktısı) ---

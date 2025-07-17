@@ -1,0 +1,1 @@
+pardus_txt isimli klasör oluştur ve içine 20 tane TXT ekle, her bir TXT ise içinde Süper Lig takımları hakkında bilgi olsun

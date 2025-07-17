@@ -1,112 +1,108 @@
-# Pardus AI Asistanı
+# Pardus AI Agent
 
-![Pardus Logo](https://pardus.org.tr/wp-content/uploads/2019/08/Pardus-04.png)
+![Proje Logosu](assets/Pardus-Logo-512.png)
 
-**Pardus AI Asistanı**, milli işletim sistemimiz Pardus için özel olarak geliştirilmiş, Google Gemini 1.5 destekli, akıllı bir komut satırı asistanıdır. Amacı, geliştirme ve sistem yönetimi görevlerini basitleştirmek, otomatize etmek ve Pardus kullanıcılarına güçlü bir AI yardımcısı sunmaktır.
+## Amaç
 
-Asistan, kullanıcı isteklerini doğal dilde anlar, bu istekleri gerçekleştirmek için bir eylem planı oluşturur ve bu planı uygulamak üzere güvenli Python betikleri üretir.
+Pardus AI Agent, Pardus işletim sistemi üzerinde kullanıcıların doğal dil ile verdiği komutları anlayarak bunları doğrudan sistem üzerinde çalıştırılabilir eylemlere dönüştüren bir yapay zeka ajanıdır. Projenin temel amacı, karmaşık veya rutin sistem yönetimi ve geliştirme görevlerini basitleştirmek, kullanıcıların teknik komutları hatırlama zorunluluğunu ortadan kaldırarak verimliliği artırmaktır. Ajan, dosya oluşturma, kod analizi, paket yönetimi ve komut satırı işlemleri gibi görevleri otonom bir şekilde yerine getirebilir.
 
-## 🚀 Temel Özellikler
+## Problem
 
-*   **Pardus Odaklı:** Sistem komutları ve paket yönetimi (`apt`) gibi konularda Pardus (Debian tabanlı) mimarisine aşinadır.
-*   **Akıllı Betik Üretimi:** "Bir web sunucusu kur", "proje dosyalarımı yedekle" veya "sistem kaynaklarını göster" gibi karmaşık istekleri anlar ve bunları gerçekleştirmek için `bash` veya `python` betikleri üretir.
-*   **Tam Kontrol ve Güvenlik:** Üretilen hiçbir betik, siz kodu inceleyip **onay vermeden** asla çalıştırılmaz. Bu, sisteminizin güvenliğini en üst düzeyde tutar.
-*   **Öğrenen Hafıza:** Önceki komutların sonucunu (başarı veya hata) bir sonraki adımını planlamak için kullanarak çok aşamalı görevleri (örneğin: klasör oluştur -> içine gir -> dosya yarat) başarıyla tamamlayabilir.
-*   **Şeffaf Arşivleme:** Tüm etkileşimler (sizin isteğiniz, AI'ın düşünce süreci, ürettiği kod ve kodun sonucu) `agent_archive` klasöründe zaman damgalı olarak saklanır. Bu, hata ayıklama ve geçmişi inceleme için mükemmeldir.
-*   **Kolay Kurulum:** Standart Python paket yöneticisi `pip` ile kolayca kurulur ve terminalde `pardus-ai-agent` komutuyla her yerden erişilebilir.
-*   **Kullanıcı Dostu Arayüz:** Renklendirilmiş terminal çıktıları ve `/help`, `/cwd` gibi dahili komutlarla kolay bir kullanım sunar.
+Geliştiriciler, sistem yöneticileri ve hatta son kullanıcılar, sık sık tekrar eden veya ezberlenmesi zor olan komutlarla çalışmak zorunda kalır. Görevleri otomatikleştirmek için betikler (script) yazmak zaman alıcı olabilir ve her durum için esnek çözümler sunmayabilir. Bu proje, kullanıcıların "bana bir web sunucusu kur" veya "projedeki tüm testleri çalıştır" gibi basit cümlelerle karmaşık işlemleri gerçekleştirmesine olanak tanıyarak bu problemi çözmeyi hedefler. Bu sayede, teknik bilgi seviyesi ne olursa olsun tüm kullanıcılar için Pardus deneyimini daha akıcı ve erişilebilir hale getirir.
 
-## 🛠️ Kurulum
+## Yöntem
 
-Asistanı kurmak için aşağıdaki adımları takip edin.
+Proje, kullanıcıdan gelen doğal dil komutlarını alıp bunları çalıştırılabilir Python koduna çevirmek için Google'ın güçlü **Gemini 1.5 Flash** modelini kullanır. Sistemin çalışma mimarisi aşağıdaki adımlardan oluşur:
 
-### Gereksinimler
-*   Pardus İşletim Sistemi
-*   Python 3.8 veya üzeri (`python3 --version` ile kontrol edebilirsiniz)
-*   Google AI Studio'dan alınmış bir API Anahtarı
+1.  **API Sunucusu (`serve_api.py`):** Proje, bir Flask web sunucusu aracılığıyla dış dünya ile iletişim kurar. Kullanıcılar, `/execute` endpoint'ine JSON formatında bir `prompt` (istek) gönderir.
+2.  **Yapay Zeka Çekirdeği (`agent/ai_core.py`):** Gelen istek, `AICore` sınıfına iletilir. Bu sınıf, kullanıcı isteğini Gemini API'nin anlayacağı şekilde biçimlendirir ve modelden bu isteği yerine getirecek Python kodunu üretmesini talep eder.
+3.  **Eylem Yürütücü (`agent/action_executor.py`):** Gemini tarafından üretilen Python kodu, `ActionExecutor` sınıfına gönderilir. Bu sınıf, gelen kodu `exec()` fonksiyonu kullanarak güvenli bir ortamda çalıştırır. Kodun çalışması sırasında oluşan çıktılar (stdout) ve hatalar (stderr) yakalanır.
+4.  **Yanıt Döndürme:** Çalıştırılan kodun sonucu, çıktılar ve olası hatalar ile birlikte kullanıcıya JSON formatında geri döndürülür.
 
-### Adım 1: Proje Ortamını Hazırlama
+Bu yöntem sayesinde ajan, sadece önceden tanımlanmış görevleri değil, aynı zamanda Gemini modelinin yetenekleri dahilinde anlık olarak üretilen her türlü dinamik görevi yerine getirebilir.
 
-Bir terminal açın ve aşağıdaki komutları sırasıyla çalıştırın.
+## Kullanılan Teknolojiler
 
-1.  **Gerekli paketi kurun:**
+*   **Programlama Dili:** Python 3
+*   **Yapay Zeka Modeli:** Google Gemini 1.5 Flash
+*   **Web Framework:** Flask (API sunucusu için)
+*   **Ana Kütüphaneler:**
+    *   `google-generativeai`: Google Gemini API ile etkileşim için.
+    *   `Flask` & `Werkzeug`: HTTP isteklerini yönetmek ve API endpoint'lerini sunmak için.
+    *   `Flask-Cors`: Tarayıcı tabanlı istemcilerden gelen isteklere izin vermek için.
+
+## Kurulum
+
+Projeyi yerel ortamınızda kurmak ve çalıştırmak için aşağıdaki adımları izleyebilirsiniz:
+
+1.  **Projeyi Klonlayın:**
     ```bash
-    sudo apt update
-    sudo apt install python3-venv -y
-    ```
-2.  **Proje dosyalarını indirin veya klonlayın:**
-    ```bash
-    git clone [PROJENİZİN_GITHUB_URL'Sİ]
+    git clone https://github.com/kullaniciadi/pardus-ai-agent.git
     cd pardus-ai-agent
     ```
-    *(Eğer projeyi klonlamadıysanız, dosyaları bir klasöre koyup o klasörün içine girin.)*
 
-3.  **Python sanal ortamını oluşturun ve aktifleştirin:**
+2.  **Python Sanal Ortamı Oluşturun (Önerilir):**
     ```bash
     python3 -m venv venv
     source venv/bin/activate
     ```
-    *(Terminal satırınızın başında `(venv)` yazısını görmelisiniz.)*
 
-### Adım 2: Bağımlılıkları ve Asistanı Kurma
-
-1.  **Gerekli kütüphaneleri kurun:**
+3.  **Gerekli Bağımlılıkları Yükleyin:**
     ```bash
     pip install -r requirements.txt
     ```
-2.  **Pardus AI Asistanı'nı sisteme kurun:**
+
+4.  **Projeyi Sisteme Kurun:**
+    `setup.py` dosyası, projenin paket olarak kurulmasını sağlar.
     ```bash
-    pip install -e .
+    python setup.py install
     ```
-    *(`-e` bayrağı, kodda yaptığınız değişikliklerin anında yansımasını sağlar.)*
 
-## 🚀 Kullanım
-
-Kurulum tamamlandı! Artık asistanı kullanmaya başlayabilirsiniz.
-
-1.  **İlk Çalıştırma:**
-    Terminalde aşağıdaki komutu çalıştırın:
+5.  **API Sunucusunu Başlatın:**
+    Ajanı aktif hale getirmek için API sunucusunu çalıştırın.
     ```bash
-    pardus-ai-agent
+    python serve_api.py
     ```
-    Program ilk kez çalıştığında sizden **Google AI API Anahtarınızı** ve kullanmak istediğiniz **Gemini modelini** (Flash veya Pro) isteyecektir. Bu bilgiler `~/.config/pardus-ai-agent/config.json` dosyasına kaydedilecektir.
+    Sunucu varsayılan olarak `http://127.0.0.1:5000` adresinde çalışmaya başlayacaktır.
 
-2.  **Asistan ile Etkileşim:**
-    Kurulumdan sonra asistan sizden komut bekleyecektir. Doğal bir dilde isteklerinizi yazabilirsiniz.
+## Gemini API Nasıl Kullanılır?
 
-    **Örnek 1: Paket Kurma**
-    ```
-    (pardus-ai-projesi) Pardus 👤 > bana neofetch aracını kurar mısın
-    ```
+Proje, Gemini API ile `agent/ai_core.py` dosyasındaki `AICore` sınıfı üzerinden etkileşim kurar.
 
-    **Örnek 2: Dosya İşlemleri**
-    ```
-    (pardus-ai-projesi) Pardus 👤 > belgelerim klasöründe 'test' adında bir alt klasör oluştur
-    ```
+-   **Başlatma:** `AICore` başlatıldığında, `gemini-1.5-flash` modelini kullanacak şekilde yapılandırılır.
+-   **İstek Gönderme:** `execute_action` metodu, kullanıcıdan gelen isteği alır ve Gemini modeline gönderir. Modelden, bu isteği karşılayacak Python kodunu üretmesi istenir.
+-   **API Anahtarı:** Gemini API'yi kullanabilmek için bir Google API anahtarına ihtiyacınız vardır. Bu anahtarı projenin ana dizininde bir `config.json` dosyası oluşturarak veya bir ortam değişkeni (`GEMINI_API_KEY`) olarak tanımlayarak sisteme tanıtmalısınız.
 
-    **Örnek 3: Sistem Bilgisi**
-    ```
-    (pardus-ai-projesi) Pardus 👤 > disk kullanım durumunu gösteren bir betik yaz
-    ```
+**Örnek `config.json`:**
+```json
+{
+  "api_key": "BURAYA_API_ANAHTARINIZI_GIRIN"
+}
+```
 
-3.  **Dahili Komutlar:**
-    Asistanın AI'a sormadan direkt çalıştırdığı özel komutları vardır. Bunları görmek için `/help` yazmanız yeterlidir.
-    ```
-    (pardus-ai-projesi) Pardus 👤 > /help
-    ```
-    *   `/reconfigure`: Ayarları yeniden yapmak için kullanılır.
-    *   `/cwd`: Mevcut çalışma dizinini gösterir.
-    *   `/clear`: Sohbet geçmişini temizler.
-    *   `/exit`: Asistanı sonlandırır.
+## Güvenlik Notları
 
-## ⚠️ ÖNEMLİ GÜVENLİK UYARISI
+Bu proje, yapay zeka tarafından üretilen kodu doğrudan sistem üzerinde çalıştırdığı için doğası gereği büyük bir güce sahiptir. `ActionExecutor` modülü, `exec()` fonksiyonunu kullanarak kodları yürütür. Bu, esneklik sağlarken aynı zamanda önemli bir güvenlik riski oluşturur. Üretilen kodun dosya sisteminize veya kişisel verilerinize zarar verme potansiyeli bulunmaktadır.
 
-Bu araç, AI tarafından üretilen ve potansiyel olarak **sistem komutları** (`sudo apt`, `rm` vb.) içeren kodları çalıştırır. Asistan, kodu çalıştırmadan önce **her zaman size kodu gösterir ve onayınızı ister**.
+Bu nedenle, projeyi çalıştırırken dikkatli olunmalı ve ajana verilen komutların sonuçları göz önünde bulundurulmalıdır. Projenin mevcut hali, kontrollü bir geliştirme ortamında kullanım için daha uygundur.
 
-**LÜTFEN SİZE SUNULAN KODU DİKKATLİCE İNCELEMEDEN ASLA 'y' YAZARAK ONAYLAMAYIN!**
+## Ekran Görüntüleri
 
-Bu aracın kullanımından doğacak her türlü sorumluluk tamamen kullanıcıya aittir. Güvenliğiniz için, ne yaptığını anlamadığınız kodları çalıştırmaktan kaçının.
+Projenin nasıl çalıştığını gösteren bazı örnekler aşağıda yer almaktadır.
 
-## 🤝 Katkıda Bulunma
+*Ajanın bir terminal gibi bir araç üzerinden kullanımı:*
+`![Terminal Örneği](screenshots/1.png)`
 
-Bu proje açık kaynaklıdır ve katkılarınıza açıktır. Fork'layabilir, yeni özellikler ekleyebilir ve Pull Request gönderebilirsiniz.
+*Ajanın karmaşık bir görevi yerine getirmesi:*
+`![Kod Analizi Örneği](screenshots/2.png)`
+
+*Ajanın karmaşık bir görevi yerine getirmesi:*
+`![Kod Analizi Örneği](screenshots/2-1.png)`
+
+## Takım Bilgisi
+
+*   **Üyeler:** Denizhan Şahin, Mehmet Akınol
+*   **Başvuru ID:** 3078008
+*   **Takım ID:** 577125
+*   **Takım Adı:** Space Teknopoli Linux Team
+*   **Yarışma Adı:** 2025 Pardus Hata Yakalama ve Öneri Yarışması Geliştirme Kategorisi
