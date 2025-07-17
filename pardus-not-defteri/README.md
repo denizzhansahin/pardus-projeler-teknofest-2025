@@ -82,7 +82,7 @@ Pardus Not Defteri, not alma deneyiminizi zenginleştirmek için Google Gemini A
 *   **Sesli Komut İşleme (`VoiceCommandModal.tsx`)**: Kullanıcılar sesli komutlar vererek yeni notlar oluşturabilirler. Gemini API, ses kaydını metne dönüştürür (`transcribeAudioWithAI`) ve ardından bu metni analiz ederek not başlığı, içeriği ve kategorisi gibi bilgileri çıkarır (`processVoiceCommand`). AI, kullanıcının mevcut notlarını da dikkate alarak daha akıllı notlar oluşturmaya çalışır.
 *   **Not Özetleme**: Uzun notların içeriği, Gemini API kullanılarak hızlıca özetlenebilir. Bu, kullanıcıların notların ana fikirlerini çabucak kavramasına olanak tanır.
 
-API anahtarınızı `.env.local` dosyasına ekledikten sonra, uygulamanın tüm AI destekli özelliklerini kullanmaya başlayabilirsiniz.
+API anahtarınızı ise "Ayarlar" bölümüne ekledikten sonra, uygulamanın tüm AI destekli özelliklerini kullanmaya başlayabilirsiniz.
 
 ## Ekran Görüntüleri
 
@@ -96,6 +96,7 @@ Uygulamanın temel arayüzlerini ve özelliklerini gösteren ekran görüntüler
 *   ![AI Yardımcı - İçerik Önerisi](screenshots/ai_yardimci_icerik_öneri.png)
 *   ![AI Özet ve Sesli Özet](screenshots/ai_özet_sesli_özet.png)
 *   ![Sesli Not](screenshots/sesli_not.png)
+    ![Not](screenshots/1.png)
 
 ## Takım Bilgisi
 

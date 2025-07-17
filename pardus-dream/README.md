@@ -72,7 +72,9 @@ Projeyi yerel ortamınızda kurmak ve çalıştırmak için aşağıdaki adımla
 
 Uygulamanın tüm yapay zeka yetenekleri, `services/geminiService.ts` dosyası üzerinden yönetilir ve Google Gemini API'sini kullanır.
 
-1.  **API Anahtarı Kurulumu**: Uygulamayı kullanmaya başlamadan önce, bir Google Gemini API anahtarına sahip olmanız gerekir. Uygulamanın sağ üst köşesindeki **Ayarlar** ikonuna tıklayarak açılan pencereye API anahtarınızı girmelisiniz. Bu anahtar, güvenli bir şekilde sadece sizin bilgisayarınızda saklanır.
+1.  **API Anahtarı Kurulumu**: Uygulamayı kullanmaya başlamadan önce, bir Google Gemini API anahtarına sahip olmanız gerekir. Uygulamanın sağ üst köşesindeki **Ayarlar** ikonuna tıklayarak açılan pencereye API anahtarınızı girmelisiniz. Bu anahtar, güvenli bir şekilde sadece sizin bilgisayarınızda saklanır. 
+
+**Görsel oluşturma özelliği için Google AI Studio üzerinden mevcut bir "Billing" özelliği açık Cloud projenizin API key bilgisini kullanmanız gerekmektedir.
 2.  **API Fonksiyonları**:
     -   `generateImage`: Metin istemini ve (varsa) temel görsel tanımını alıp **Imagen 3** modeline göndererek görsel üretir.
     -   `describeImage`: Bir görseli base64 formatına çevirip **Gemini 2.5 Flash** modeline göndererek görselin detaylı bir tanımını alır. Bu tanım, görselden görsel üretme sürecinde kullanılır.
