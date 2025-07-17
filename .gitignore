@@ -136,3 +136,10 @@ multimodal-ai-chatbot-gemini/*.test-results
 multimodal-ai-chatbot-gemini/Thumbs.db
 
 
+
+
+
+
+
+#İstisna
+!flowmind-pardus/assets/Pardus-Logo.png
