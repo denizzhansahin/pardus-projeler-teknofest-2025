@@ -1,6 +1,6 @@
 # Pardus AI - Yerel Cihazda Çalışan OpenSource(Hugging Face) AI Modelleri
 
-![Proje Logosu](assets/logo.png)
+![Proje Logosu](assets/Pardus-Logo.png)
 
 ## 1. Amaç
 
