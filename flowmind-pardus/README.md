@@ -71,10 +71,8 @@ Projeyi yerel ortamınızda çalıştırmak için `Node.js` ve `npm`'in kurulu o
 Yapay zeka özelliklerini aktif hale getirmek için bir Google Gemini API anahtarına ihtiyacınız vardır.
 
 1.  **API Anahtarı Alın**: Google AI Studio web sitesini ziyaret ederek ücretsiz bir API anahtarı oluşturun.
-2.  **Ortam Değişkeni Dosyası Oluşturun**: Projenin ana dizininde (`flowmind-pardus/`) `.env.local` adında bir dosya oluşturun.
-3.  **Anahtarı Dosyaya Ekleyin**: Oluşturduğunuz dosyaya API anahtarınızı aşağıdaki formatta yapıştırın:
-    ```
-    VITE_GEMINI_API_KEY=BURAYA_API_ANAHTARINIZI_YAPISTIRIN
+2.  **API Anahtarını Ekleyin**: Projenin açılışında "Ayarlar" butonuna tıklayın API anahtarınızı yazınız, daha sonra sayfa yenileme işlemi için gelen uyarıyı kabul edin.
+
     ```
     Uygulama, `services/geminiService.ts` dosyası aracılığıyla bu anahtarı otomatik olarak okuyacak ve Gemini özelliklerini kullanıma sunacaktır.
 
@@ -95,8 +93,9 @@ Yapay zeka özelliklerini aktif hale getirmek için bir Google Gemini API anahta
 ![Gemini Entegrasyonu](screenshots/gemini_feature.png)
 *Bir düğüm seçiliyken Gemini'dan fikir isteme ve sonucun anında haritaya eklenmesi.*
 
-![Dışa Aktarma Seçenekleri](screenshots/export_options.png)
-*Tamamlanan zihin haritasının PDF veya PNG olarak dışa aktarılma seçenekleri.*
+![Gemini Entegrasyonu](screenshots/gemini_feature2.png)
+*Bir düğüm seçiliyken Gemini'dan fikir isteme ve sonucun anında haritaya eklenmesi.*
+
 
 ## Takım Bilgisi
 
