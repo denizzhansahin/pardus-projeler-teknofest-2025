@@ -108,13 +108,10 @@ Paketlenen dosyalar `release` klasöründe oluşturulacaktır.
 ## 7. Gemini API Nasıl Kullanılır?
 
 Proje, yapay zeka yetenekleri için Google Gemini API'sini kullanır. API entegrasyonu `services/geminiService.ts` dosyası üzerinden yönetilir.
+Yapay zeka özelliklerini aktif hale getirmek için bir Google Gemini API anahtarına ihtiyacınız vardır.
 
-1.  **API Anahtarı Edinin**: Google AI Studio üzerinden ücretsiz bir API anahtarı oluşturun.
-2.  **API Anahtarını Projeye Ekleyin**: Projenin ana dizininde `.env.local` adında bir dosya oluşturun ve içine API anahtarınızı aşağıdaki gibi ekleyin:
-    ```
-    VITE_GEMINI_API_KEY=BURAYA_API_ANAHTARINIZI_YAPISTIRIN
-    ```
-    Uygulama, bu anahtarı otomatik olarak okuyacak ve Gemini API'sine yapılan tüm isteklerde kullanacaktır.
+1.  **API Anahtarı Alın**: Google AI Studio web sitesini ziyaret ederek ücretsiz bir API anahtarı oluşturun.
+2.  **API Anahtarını Ekleyin**: Projenin açılışında "Ayarlar" butonuna tıklayın API anahtarınızı yazınız, daha sonra sayfa yenileme işlemi için gelen uyarıyı kabul edin.
 
 ## 8. Ekran Görüntüleri
 
@@ -128,6 +125,9 @@ Proje, yapay zeka yetenekleri için Google Gemini API'sini kullanır. API entegr
 
 ![Görüntü Yükleme](screenshots/image_upload.png)
 *Çok modlu yetenekler: Görüntü yükleyerek soru sorma.*
+
+![Ayarlar Arayüzü](screenshots/settings.png)
+*Duvar kağıdı, API key ve arkaplan rengi seçenekleri kullanılır.*
 
 ## 9. Takım Bilgisi
 
