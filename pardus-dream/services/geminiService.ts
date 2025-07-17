@@ -45,7 +45,7 @@ export async function describeImage(base64Data: string, mimeType: string): Promi
         };
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-preview-04-17',
+            model: 'gemini-2.5-flash',
             contents: { parts: [imagePart, textPart] },
              config: {
                 temperature: 0.3,
@@ -68,7 +68,7 @@ export async function translatePrompt(prompt: string): Promise<string> {
     try {
         const ai = getAIInstance();
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-preview-04-17",
+            model: "gemini-2.5-flash",
             contents: prompt,
             config: {
                 systemInstruction: "Translate the following Turkish text to English for an AI image generator. The translation should be descriptive and clear, capturing the essence of the original text. Return only the translated English text, without any additional comments, preambles, or quotation marks.",
@@ -122,7 +122,7 @@ export async function enhancePrompt(prompt: string): Promise<string> {
     try {
         const ai = getAIInstance();
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-preview-04-17",
+            model: "gemini-2.5-flash",
             contents: prompt,
             config: {
                 systemInstruction: "You are a creative assistant. Rewrite the user's prompt to be more descriptive, vivid, and imaginative for an AI image generator. Focus on details, lighting, atmosphere, and artistic style. Return only the enhanced prompt text, without any preamble or explanation. The response must be in Turkish.",
@@ -142,7 +142,7 @@ export async function getPromptIdeas(prompt: string): Promise<string[]> {
     try {
         const ai = getAIInstance();
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-preview-04-17",
+            model: "gemini-2.5-flash",
             contents: `Kullanıcının şu istemine dayanarak 5 tane yaratıcı ve alternatif yeni istem fikri oluştur: "${prompt}"`,
             config: {
                 systemInstruction: "You are an inspiration engine. Generate creative prompt ideas based on the user's input. Return the ideas as a JSON array of strings, like [\"idea1\", \"idea2\", ...]. Only return the JSON array. The ideas must be in Turkish.",

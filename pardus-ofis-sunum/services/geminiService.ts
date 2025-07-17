@@ -42,7 +42,7 @@ export const generatePresentationOutline = async (prompt: string): Promise<Slide
   `;
 
   const response: GenerateContentResponse = await ai.models.generateContent({
-    model: 'gemini-2.5-flash-preview-04-17',
+    model: 'gemini-2.5-flash',
     contents: fullPrompt,
     config: {
         responseMimeType: "application/json",
@@ -98,7 +98,7 @@ export const generateSlideDetails = async (title: string, summary: string): Prom
   `;
 
   const response: GenerateContentResponse = await ai.models.generateContent({
-    model: 'gemini-2.5-flash-preview-04-17',
+    model: 'gemini-2.5-flash',
     contents: fullPrompt,
     config: {
         responseMimeType: "application/json",
@@ -164,7 +164,7 @@ export const redesignSlide = async (title: string, summary: string): Promise<Gen
   `;
 
     const response: GenerateContentResponse = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-preview-04-17',
+        model: 'gemini-2.5-flash',
         contents: fullPrompt,
         config: {
             responseMimeType: "application/json",
@@ -190,7 +190,7 @@ export const redesignSlide = async (title: string, summary: string): Promise<Gen
 export const chatOnSlide = async (slideContent: string, history: ChatMessage[], newMessage: string): Promise<string> => {
     const ai = getGeminiClient();
     const chat = ai.chats.create({
-        model: 'gemini-2.5-flash-preview-04-17',
+        model: 'gemini-2.5-flash',
         config: {
             systemInstruction: `You are a helpful assistant for improving a presentation slide. The user is working on a slide with the following content: "${slideContent}". Help them refine it.`
         },

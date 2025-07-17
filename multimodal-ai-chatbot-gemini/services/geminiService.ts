@@ -25,7 +25,7 @@ function getGeminiApiKey(): string | undefined {
   return undefined;
 }
 
-const TEXT_MODEL = 'gemini-2.5-flash-preview-04-17';
+const TEXT_MODEL = 'gemini-2.5-flash';
 const IMAGE_MODEL = 'imagen-3.0-generate-002'; // For image generation only
 
 interface GenerateContentParams {

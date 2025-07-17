@@ -23,7 +23,7 @@ export const generateTypingText = async (ai: GoogleGenAI, config: TestConfig): P
 
     try {
         const response: GenerateContentResponse = await ai.models.generateContent({
-            model: "gemini-2.5-flash-preview-04-17",
+            model: "gemini-2.5-flash",
             contents: prompt,
         });
         return response.text.replace(/\s+/g, ' ').trim();
@@ -52,7 +52,7 @@ export const getTypingTips = async (ai: GoogleGenAI, result: TestResult): Promis
     
     try {
         const response: GenerateContentResponse = await ai.models.generateContent({
-            model: "gemini-2.5-flash-preview-04-17",
+            model: "gemini-2.5-flash",
             contents: prompt,
         });
         return response.text;

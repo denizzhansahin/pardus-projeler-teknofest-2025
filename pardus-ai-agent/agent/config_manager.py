@@ -65,7 +65,7 @@ def prompt_for_config() -> dict:
     
     print("\nHangi Gemini modelini kullanmak istersiniz?")
     print("1: Gemini 2.5 Flash (Daha hızlı ve günlük görevler için ideal)")
-    print("2: Gemini 2.5 Pro - Bu model çalışmayabilir -  (Daha güçlü ve karmaşık görevler için)")
+    print("2: Gemini 2.5 Pro - Bu model çalışmayabilir -  (Bu genellikle çalışmayabilir - Daha güçlü ve karmaşık görevler için)")
     
     model_choice = ""
     # Kullanıcı 1 veya 2 dışında bir şey girerse, tekrar sor.

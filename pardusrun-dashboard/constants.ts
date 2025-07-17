@@ -40,7 +40,7 @@ export const NEWS_CATEGORIES_AVAILABLE = [
   NewsCategory.Kultur,
 ];
 
-export const GEMINI_TEXT_MODEL = "gemini-2.5-flash-preview-04-17";
+export const GEMINI_TEXT_MODEL = "gemini-2.5-flash";
 export const GEMINI_IMAGE_MODEL = "imagen-3.0-generate-002";
 
 

@@ -40,7 +40,7 @@ export const analyzeImage = async (image: Blob): Promise<AnalysisResult> => {
 
     try {
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-preview-04-17",
+            model: "gemini-2.5-flash",
             contents: { parts: [imagePart, { text: prompt }] },
             config: {
                 responseMimeType: "application/json",
@@ -78,7 +78,7 @@ export const getKeywordsForImageSearch = async (image: Blob): Promise<string> =>
      
      try {
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-preview-04-17",
+            model: "gemini-2.5-flash",
             contents: { parts: [imagePart, {text: prompt}] }
         });
         return response.text?.trim() || '';
@@ -112,7 +112,7 @@ export const suggestMemories = async (items: MediaItem[]): Promise<Omit<Memory, 
 
     try {
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-preview-04-17",
+            model: "gemini-2.5-flash",
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
@@ -150,7 +150,7 @@ export const getDailyHighlight = async (items: MediaItem[]): Promise<DailyHighli
 
     try {
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-preview-04-17",
+            model: "gemini-2.5-flash",
             contents: prompt,
             config: { responseMimeType: "application/json" }
         });
@@ -182,7 +182,7 @@ export const getMoreInfo = async (image: Blob): Promise<MoreInfoResult | null> =
     const prompt = `Bu görseldeki ana nesne, yer veya kavram nedir? Bunu belirledikten sonra, bu konu hakkında kısa (2-3 cümle), ansiklopedik ve Türkçe bir bilgi ver. Yanıtı bir JSON nesnesi olarak döndür ve şu alanları içersin: 'title' (ana konunun Türkçe adı) ve 'content' (konu hakkındaki Türkçe açıklama). Örneğin, bir kedi fotoğrafı için: {"title": "Kedi (Felis catus)", "content": "Kediler, Felidae familyasına ait, evcilleştirilmiş küçük etçil memelilerdir. İnsanlarla olan yakın ilişkileri binlerce yıl öncesine dayanır ve dünya genelinde en popüler evcil hayvanlardan biridir."}`;
     try {
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-preview-04-17",
+            model: "gemini-2.5-flash",
             contents: { parts: [imagePart, { text: prompt }] },
             config: { responseMimeType: "application/json" }
         });
@@ -244,7 +244,7 @@ export const chatWithAI = async (
 
     try {
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-preview-04-17",
+            model: "gemini-2.5-flash",
             contents: prompt,
             config: {
                 responseMimeType: "application/json",

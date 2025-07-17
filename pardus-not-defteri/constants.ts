@@ -1,7 +1,7 @@
 
 import { Category } from './types';
 
-export const AI_MODEL_TEXT = 'gemini-2.5-flash-preview-04-17';
+export const AI_MODEL_TEXT = 'gemini-2.5-flash';
 
 const PREDEFINED_CATEGORY_COLORS: Record<string, { bg: string; text: string; border: string; ring: string }> = {
   General:  { bg: 'bg-slate-700', text: 'text-slate-200', border: 'border-slate-500', ring: 'ring-slate-400' },
