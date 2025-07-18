@@ -98,8 +98,8 @@ Yapay zeka özelliklerini aktif hale getirmek için bir Google Gemini API anahta
 
 
 ## Takım Bilgisi
-
--   **Üyeler**: Denizhan Şahin, Mehmet Akınol
+-   **Danışman**: Mehmet Akınol
+-   **Üye**: Denizhan Şahin
 -   **Başvuru ID**: 3078008
 -   **Takım ID**: 577125
 -   **Takım Adı**: Space Teknopoli Linux Team
