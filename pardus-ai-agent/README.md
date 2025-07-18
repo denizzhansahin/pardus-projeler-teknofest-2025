@@ -101,7 +101,8 @@ Projenin nasıl çalıştığını gösteren bazı örnekler aşağıda yer alma
 
 ## Takım Bilgisi
 
-*   **Üyeler:** Denizhan Şahin, Mehmet Akınol
+*   **Danışman**: Mehmet Akınol
+*   **Üye**: Denizhan Şahin
 *   **Başvuru ID:** 3078008
 *   **Takım ID:** 577125
 *   **Takım Adı:** Space Teknopoli Linux Team
