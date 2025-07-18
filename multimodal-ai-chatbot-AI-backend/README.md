@@ -86,8 +86,8 @@ Projeyi yerel ortamınızda çalıştırmak için aşağıdaki adımları takip 
 
 ## 6. Takım Bilgisi
 
-*   **Üyeler**: Denizhan Şahin, Mehmet Akınol
-*   **Başvuru ID**: 3078008
+*   **Danışman**: Mehmet Akınol
+*   **Üye**: Denizhan Şahin
 *   **Takım ID**: 577125
 *   **Takım Adı**: Space Teknopoli Linux Team
 *   **Yarışma Adı**: 2025 Pardus Hata Yakalama ve Öneri Yarışması Geliştirme Kategorisi
