@@ -7,6 +7,15 @@
 *   **Takım Adı**: Space Teknopoli Linux Team
 *   **Yarışma Adı**: 2025 Pardus Hata Yakalama ve Öneri Yarışması Geliştirme Kategorisi
 
+## Proje Yönetimi ve Dokümantasyon
+
+Proje ilerlememizi, görevlerimizi ve detaylı dokümantasyonumuzu takip etmek için DeepWiki platformunu kullanıyoruz. Tüm proje detaylarına aşağıdaki bağlantıdan ulaşabilirsiniz:
+
+[DeepWiki Adresimiz](https://deepwiki.com/denizzhansahin/pardus-projeler-teknofest-2025)
+
+
+
+
 ## Projelerimize Genel Bakış
 
 Bu depo, 2025 Pardus Hata Yakalama ve Öneri Yarışması Geliştirme Kategorisi için geliştirdiğimiz çeşitli yenilikçi projeleri içermektedir. Amacımız, Pardus işletim sistemi kullanıcılarının deneyimini zenginleştirmek, günlük görevlerini kolaylaştırmak, verimliliklerini artırmak ve yapay zeka destekli çözümlerle geleceğin teknolojilerini bugünden sunmaktır. Projelerimizin çoğu, modern web teknolojileri (React, TypeScript) ve Electron çerçevesi kullanılarak platformlar arası uyumlu masaüstü uygulamaları olarak geliştirilmiş olup, Google Gemini API entegrasyonu sayesinde güçlü yapay zeka yetenekleri kazanmıştır.
