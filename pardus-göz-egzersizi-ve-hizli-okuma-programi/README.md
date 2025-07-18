@@ -73,7 +73,8 @@ Bu proje, yapay zeka destekli metin oluşturma egzersizi için Google Gemini API
 
 ## Takım Bilgisi
 
-*   **Üyeler**: Denizhan Şahin, Mehmet Akınol
+*   **Danışman**: Mehmet Akınol
+*   **Üye**: Denizhan Şahin
 *   **Başvuru ID**: 3078008
 *   **Takım ID**: 577125
 *   **Takım Adı**: Space Teknopoli Linux Team
